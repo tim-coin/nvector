@@ -148,3 +148,60 @@ func TestSphericalDistance3(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestAzimuth1(t *testing.T) {
+	// meridional
+	pos1, _ := NewLonLat(-140, 49.25)
+	pos2, _ := NewLonLat(-140, 48.25)
+	nv1 := pos1.ToNVector()
+	nv2 := pos2.ToNVector()
+	ellps := Ellipsoid{6378137.0, 6356752.3142}
+	az, baz, err := nv1.Azimuth(&nv2, &ellps)
+	if err != nil {
+		t.Error()
+	}
+	if !isclose(az, math.Pi, 6) {
+		t.Fail()
+	}
+	if !isclose(baz, math.Pi, 6) {
+		t.Fail()
+	}
+}
+
+func TestAzimuth2(t *testing.T) {
+	// zonal
+	pos1, _ := NewLonLat(-140, 49.25)
+	pos2, _ := NewLonLat(-143, 49.25)
+	nv1 := pos1.ToNVector()
+	nv2 := pos2.ToNVector()
+	ellps := Ellipsoid{6378137.0, 6356752.3142}
+	az, baz, err := nv1.Azimuth(&nv2, &ellps)
+	if err != nil {
+		t.Error()
+	}
+	if !isclose(az, -88.8635416/180*math.Pi, 6) {
+		t.Fail()
+	}
+	if !isclose(baz, 88.8635416/180*math.Pi, 6) {
+		t.Fail()
+	}
+}
+
+func TestAzimuth3(t *testing.T) {
+	// crosses dateline
+	pos1, _ := NewLonLat(174, -15)
+	pos2, _ := NewLonLat(-177.5, 36)
+	nv1 := pos1.ToNVector()
+	nv2 := pos2.ToNVector()
+	ellps := Ellipsoid{6378137.0, 6356752.3142}
+	az, baz, err := nv1.Azimuth(&nv2, &ellps)
+	if err != nil {
+		t.Error()
+	}
+	if !isclose(az, 8.8262727/180*math.Pi, 6) {
+		t.Fail()
+	}
+	if !isclose(baz, -169.4538460/180*math.Pi, 6) {
+		t.Fail()
+	}
+}

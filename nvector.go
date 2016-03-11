@@ -28,6 +28,7 @@ type IPVector interface {
 }
 
 type Vec3 [3]float64
+
 type Matrix3 [3][3]float64
 
 type NVector struct {
@@ -43,6 +44,8 @@ type LonLat struct {
 	lat float64
 }
 
+// Ellipsoid represents a geographical ellipsoid in terms of its major and
+// minor exes
 type Ellipsoid struct {
 	a, b float64
 }
@@ -78,6 +81,7 @@ func NewLonLat(londeg float64, latdeg float64) (*LonLat, error) {
 	return &LonLat{lon, lat}, nil
 }
 
+// ToNVector returns a cartesian position vector.
 func (ll *LonLat) ToNVector() NVector {
 	x := math.Sin(ll.lat)
 	y := math.Sin(ll.lon) * math.Cos(ll.lat)
@@ -91,6 +95,7 @@ func (ll *LonLat) String() string {
 	return fmt.Sprintf("(%.6f, %.6f)", londeg, latdeg)
 }
 
+// ToLonLat returns a LonLat struct, where lon: [-pi, pi) and lat: [-pi/2, pi/2].
 func (nv *NVector) ToLonLat() LonLat {
 	lat := math.Atan2(nv.Vec3[0], math.Sqrt(nv.Vec3[1]*nv.Vec3[1]+nv.Vec3[2]*nv.Vec3[2]))
 	lon := math.Atan2(nv.Vec3[1], -nv.Vec3[2])
@@ -98,6 +103,7 @@ func (nv *NVector) ToLonLat() LonLat {
 	return LonLat{lon, lat}
 }
 
+// ToPVector returns a surface-normal vector, given an ellipsoid.
 func (nv *NVector) ToPVector(ellps *Ellipsoid) PVector {
 	absq := ellps.a * ellps.a / (ellps.b * ellps.b)
 	coeff := ellps.b / math.Sqrt(nv.Vec3[0]*nv.Vec3[0]+
@@ -106,6 +112,7 @@ func (nv *NVector) ToPVector(ellps *Ellipsoid) PVector {
 	return PVector{Vec3{coeff * nv.Vec3[0], absq * nv.Vec3[1], absq * nv.Vec3[2]}}
 }
 
+// ToNVector returns a Cartesian position vector, given an ellipsoid.
 func (pv *PVector) ToNVector(ellps *Ellipsoid) NVector {
 	eccen := math.Sqrt(1 - ellps.b*ellps.b/(ellps.a*ellps.a))
 	eccen2 := eccen * eccen
@@ -148,4 +155,14 @@ func (nv *NVector) SphericalDistance(nv2 *NVector, R float64) float64 {
 	s_ab := math.Atan2(cross(&nv.Vec3, &nv2.Vec3).Magnitude(),
 		dot(&nv.Vec3, &nv2.Vec3)) * R
 	return s_ab
+}
+
+// Azimuth returns the azimuth and back azimuth from one NVector to another along an ellipse
+func (nv *NVector) Azimuth(nv2 *NVector, ellps *Ellipsoid) (float64, float64, error) {
+	return 0.0, 0.0, nil
+}
+
+// Forward returns the NVector position arrived at by moving in an azimuthal direction for a given distance along an ellipse
+func (nv *NVector) Forward(az, distance float64, ellps *Ellipsoid) (NVector, error) {
+	return *new(NVector), nil
 }
