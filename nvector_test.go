@@ -1,14 +1,19 @@
 package nvector
 
 import (
+	"fmt"
 	"math"
 	"testing"
 )
 
 func isclose(a, b float64, places int32) bool {
 	var tol float64
-	tol = 1.0 / float64(places)
-	return math.Abs(a-b) < tol
+	tol = math.Pow(10, -float64(places))
+	res := math.Abs(a-b) < tol
+	if !res {
+		fmt.Printf("%f != %f (to %d places)\n", a, b, places)
+	}
+	return res
 }
 
 func TestNewLonLatSimple(t *testing.T) {
@@ -17,10 +22,10 @@ func TestNewLonLatSimple(t *testing.T) {
 		t.Error()
 	}
 
-	if math.Abs(lonlat.lat-0.8595746566072073) > 0.0000000001 {
+	if math.Abs(lonlat.Lat-0.8595746566072073) > 0.0000000001 {
 		t.Fail()
 	}
-	if math.Abs(lonlat.lon-(-2.443460952792061)) > 0.0000000001 {
+	if math.Abs(lonlat.Lon-(-2.443460952792061)) > 0.0000000001 {
 		t.Fail()
 	}
 }
@@ -31,10 +36,10 @@ func TestNewLonLatUnwrap(t *testing.T) {
 		t.Error()
 	}
 
-	if math.Abs(lonlat.lat-0.8595746566072073) > 0.0000000001 {
+	if math.Abs(lonlat.Lat-0.8595746566072073) > 0.0000000001 {
 		t.Fail()
 	}
-	if math.Abs(lonlat.lon-(-2.443460952792061)) > 0.0000000001 {
+	if math.Abs(lonlat.Lon-(-2.443460952792061)) > 0.0000000001 {
 		t.Fail()
 	}
 }
@@ -47,29 +52,57 @@ func TestNewLonLatInvalid(t *testing.T) {
 	}
 }
 
-func TestLonLatToNVector(t *testing.T) {
-	ll, _ := NewLonLat(-140.0, 49.25)
+func TestLonLatToNVector1(t *testing.T) {
+	ll, _ := NewLonLat(0.0, 0.0)
 	nv := ll.ToNVector()
-	if !isclose(nv.Vec3[0], 0.7575649843840494, 8) {
+	if !isclose(nv.Vec3[0], 1.0, 8) {
 		t.Fail()
 	}
-	if !isclose(nv.Vec3[1], -0.41958588098509064, 8) {
+	if !isclose(nv.Vec3[1], 0.0, 8) {
 		t.Fail()
 	}
-	if !isclose(nv.Vec3[2], 0.5000429810657882, 8) {
+	if !isclose(nv.Vec3[2], 0.0, 8) {
+		t.Fail()
+	}
+}
+
+func TestLonLatToNVector2(t *testing.T) {
+	ll, _ := NewLonLat(-45, 0.0)
+	nv := ll.ToNVector()
+	if !isclose(nv.Vec3[0], math.Sin(math.Pi/4), 8) {
+		t.Fail()
+	}
+	if !isclose(nv.Vec3[1], -math.Sin(math.Pi/4), 8) {
+		t.Fail()
+	}
+	if !isclose(nv.Vec3[2], 0.0, 8) {
+		t.Fail()
+	}
+}
+
+func TestLonLatToNVector3(t *testing.T) {
+	ll, _ := NewLonLat(90.0, 45.0)
+	nv := ll.ToNVector()
+	if !isclose(nv.Vec3[0], 0.0, 8) {
+		t.Fail()
+	}
+	if !isclose(nv.Vec3[1], math.Sin(math.Pi/4), 8) {
+		t.Fail()
+	}
+	if !isclose(nv.Vec3[2], math.Sin(math.Pi/4), 8) {
 		t.Fail()
 	}
 }
 
 func TestNVectorToLonLat(t *testing.T) {
-	nv := NVector{Vec3{0.7575649843840494,
-		-0.41958588098509064,
-		0.5000429810657882}}
+	nv := NVector{Vec3{math.Sin(math.Pi/4) * math.Sin(math.Pi/4),
+		math.Sin(math.Pi/4) * math.Sin(math.Pi/4),
+		-math.Sin(math.Pi / 4)}}
 	ll := nv.ToLonLat()
-	if !isclose(ll.lon*180/math.Pi, -140, 6) {
+	if !isclose(ll.Lon*180/math.Pi, 45, 8) {
 		t.Fail()
 	}
-	if !isclose(ll.lat*180/math.Pi, 49.25, 6) {
+	if !isclose(ll.Lat*180/math.Pi, -45, 8) {
 		t.Fail()
 	}
 }
@@ -202,6 +235,78 @@ func TestAzimuth3(t *testing.T) {
 		t.Fail()
 	}
 	if !isclose(baz, -169.4538460/180*math.Pi, 6) {
+		t.Fail()
+	}
+}
+
+func TestForward1(t *testing.T) {
+	pos, _ := NewLonLat(0, 0)
+	nv := pos.ToNVector()
+	ellps := Ellipsoid{6370997.0, 6370997.0}
+
+	nv2 := nv.Forward(0, 100000, &ellps)
+	pos2 := nv2.ToLonLat()
+
+	if !isclose(pos2.Lat*180/math.Pi, 0.8993220, 6) {
+		t.Fail()
+	}
+
+	if !isclose(pos2.Lon*180/math.Pi, 0, 6) {
+		t.Fail()
+	}
+}
+
+func TestForward2(t *testing.T) {
+	pos, _ := NewLonLat(0, 0)
+	nv := pos.ToNVector()
+	ellps := Ellipsoid{6370997.0, 6370997.0}
+
+	nv2 := nv.Forward(-45/180.0*math.Pi, 1000000, &ellps)
+	pos2 := nv2.ToLonLat()
+
+	if !isclose(pos2.Lat*180/math.Pi, 6.3460548, 6) {
+		t.Fail()
+	}
+
+	if !isclose(pos2.Lon*180/math.Pi, -6.3853428, 6) {
+		t.Fail()
+	}
+}
+
+func Test_interpLinear(t *testing.T) {
+	y1 := interpLinear(0.5, 0, 1, 0, 1)
+	if !isclose(y1, 0.5, 8) {
+		t.Fail()
+	}
+	y2 := interpLinear(0.5, 0, 2, 0, 1)
+
+	if !isclose(y2, 0.25, 8) {
+		t.Fail()
+	}
+
+	y3 := interpLinear(-0.5, 0, 1, 0, 2)
+	if !isclose(y3, -1.0, 8) {
+		t.Fail()
+	}
+
+	y4 := interpLinear(1.5, 0, 2, 0, 10)
+	if !isclose(y4, 7.5, 8) {
+		t.Fail()
+	}
+}
+
+func TestInterpolate(t *testing.T) {
+	nv1 := NVector{Vec3{0, 3, 2}}
+	nv2 := NVector{Vec3{-7, 5, -3}}
+	nv_intermediate := nv1.Interpolate(&nv2, 0.2)
+
+	if !isclose(nv_intermediate.Vec3[0], -1.4, 8) {
+		t.Fail()
+	}
+	if !isclose(nv_intermediate.Vec3[1], 3.4, 8) {
+		t.Fail()
+	}
+	if !isclose(nv_intermediate.Vec3[2], 1.0, 8) {
 		t.Fail()
 	}
 }

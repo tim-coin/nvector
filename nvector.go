@@ -40,8 +40,8 @@ type PVector struct {
 }
 
 type LonLat struct {
-	lon float64
-	lat float64
+	Lon float64
+	Lat float64
 }
 
 // Ellipsoid represents a geographical ellipsoid in terms of its major and
@@ -51,11 +51,11 @@ type Ellipsoid struct {
 }
 
 type InvalidLatitudeError struct {
-	lat float64
+	Lat float64
 }
 
 func (e InvalidLatitudeError) Error() string {
-	return fmt.Sprintf("invalid latitude: %f", e.lat)
+	return fmt.Sprintf("invalid latitude: %f", e.Lat)
 }
 
 func cross(u, v *Vec3) *Vec3 {
@@ -83,22 +83,22 @@ func NewLonLat(londeg float64, latdeg float64) (*LonLat, error) {
 
 // ToNVector returns a cartesian position vector.
 func (ll *LonLat) ToNVector() NVector {
-	x := math.Sin(ll.lat)
-	y := math.Sin(ll.lon) * math.Cos(ll.lat)
-	z := -math.Cos(ll.lon) * math.Cos(ll.lat)
+	z := math.Sin(ll.Lat)
+	y := math.Sin(ll.Lon) * math.Cos(ll.Lat)
+	x := math.Cos(ll.Lon) * math.Cos(ll.Lat)
 	return NVector{Vec3{x, y, z}}
 }
 
 func (ll *LonLat) String() string {
-	londeg := ll.lon * 180.0 / math.Pi
-	latdeg := ll.lat * 180.0 / math.Pi
+	londeg := ll.Lon * 180.0 / math.Pi
+	latdeg := ll.Lat * 180.0 / math.Pi
 	return fmt.Sprintf("(%.6f, %.6f)", londeg, latdeg)
 }
 
 // ToLonLat returns a LonLat struct, where lon: [-pi, pi) and lat: [-pi/2, pi/2].
 func (nv *NVector) ToLonLat() LonLat {
-	lat := math.Atan2(nv.Vec3[0], math.Sqrt(nv.Vec3[1]*nv.Vec3[1]+nv.Vec3[2]*nv.Vec3[2]))
-	lon := math.Atan2(nv.Vec3[1], -nv.Vec3[2])
+	lat := math.Atan2(nv.Vec3[2], math.Sqrt(nv.Vec3[0]*nv.Vec3[0]+nv.Vec3[1]*nv.Vec3[1]))
+	lon := math.Atan2(nv.Vec3[1], nv.Vec3[0])
 	lon = math.Mod((lon+0.5*math.Pi), math.Pi) - 0.5*math.Pi
 	return LonLat{lon, lat}
 }
@@ -136,9 +136,11 @@ func (pv *PVector) ToNVector(ellps *Ellipsoid) NVector {
 			coeff * kke2 * pv.Vec3[2]}}
 }
 
+// RotationMatrix returns the 3x3 matrix relating the Earth-centered
+// non-singular coordinate frame to the North-up singular coordinate frame.
 func (nv *NVector) RotationMatrix() Matrix3 {
-	k_east := cross(&Vec3{1, 0, 0}, &nv.Vec3)
-	k_north := cross(cross(&nv.Vec3, &Vec3{1, 0, 0}), &nv.Vec3)
+	k_east := cross(&Vec3{0, 0, -1}, &nv.Vec3)
+	k_north := cross(&nv.Vec3, k_east)
 	a := k_north[0] / k_north.Magnitude()
 	b := k_east[0] / k_east.Magnitude()
 	c := nv.Vec3[0]
@@ -157,12 +159,47 @@ func (nv *NVector) SphericalDistance(nv2 *NVector, R float64) float64 {
 	return s_ab
 }
 
-// Azimuth returns the azimuth and back azimuth from one NVector to another along an ellipse
+// Azimuth returns the azimuth and back azimuth from one NVector to another
+// along an ellipse
 func (nv *NVector) Azimuth(nv2 *NVector, ellps *Ellipsoid) (float64, float64, error) {
 	return 0.0, 0.0, nil
 }
 
-// Forward returns the NVector position arrived at by moving in an azimuthal direction for a given distance along an ellipse
-func (nv *NVector) Forward(az, distance float64, ellps *Ellipsoid) (NVector, error) {
-	return *new(NVector), nil
+// Forward returns the NVector position arrived at by moving in an azimuthal
+// direction for a given distance along an ellipse
+func (nv *NVector) Forward(az, distance float64, ellps *Ellipsoid) NVector {
+	//north := nv.North()
+	//east := nv.East()
+	east := cross(&nv.Vec3, &Vec3{0, 0, -1})
+	north := cross(&nv.Vec3, east)
+
+	cos_az := math.Cos(az)
+	sin_az := math.Sin(az)
+	vec_az := Vec3{north[0]*cos_az + east[0]*sin_az,
+		north[1]*cos_az + east[1]*sin_az,
+		north[2]*cos_az + east[2]*sin_az}
+
+	// Great circle angle travelled
+	sab := distance / ellps.a
+	cos_sab := math.Cos(sab)
+	sin_sab := math.Sin(sab)
+	resultant := Vec3{nv.Vec3[0]*cos_sab + vec_az[0]*sin_sab,
+		nv.Vec3[1]*cos_sab + vec_az[1]*sin_sab,
+		nv.Vec3[2]*cos_sab + vec_az[2]*sin_sab}
+	return NVector{resultant}
+}
+
+func interpLinear(x, x0, x1, y0, y1 float64) float64 {
+	return (x-x0)/(x1-x0)*(y1-y0) + y0
+}
+
+// Interpolate returns the NVector representing the intermediate position
+// between two other NVectors. *frac* is the fractional distance between *nv*
+// and *nv2*.
+func (nv *NVector) Interpolate(nv2 *NVector, frac float64) NVector {
+	result := new(NVector)
+	result.Vec3[0] = interpLinear(frac, 0, 1, nv.Vec3[0], nv2.Vec3[0])
+	result.Vec3[1] = interpLinear(frac, 0, 1, nv.Vec3[1], nv2.Vec3[1])
+	result.Vec3[2] = interpLinear(frac, 0, 1, nv.Vec3[2], nv2.Vec3[2])
+	return *result
 }
