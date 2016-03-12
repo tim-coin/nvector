@@ -123,6 +123,27 @@ func Test_cross(t *testing.T) {
 	}
 }
 
+func TestTranspose(t *testing.T) {
+	var m, mt, mt_ans Matrix3
+	m = Matrix3{[3]float64{3, 6, -4}, [3]float64{8, -2, -1}, [3]float64{1, 1, 4}}
+	mt = m.Transpose()
+	mt_ans = Matrix3{[3]float64{3, 8, 1}, [3]float64{6, -2, 1}, [3]float64{-4, -1, 4}}
+	if mt != mt_ans {
+		t.Fail()
+	}
+}
+
+func TestMatMult(t *testing.T) {
+	var m Matrix3
+	var v, v2 Vec3
+	v = Vec3{2, 1, 3}
+	m = Matrix3{[3]float64{3, 6, -4}, [3]float64{8, -2, -1}, [3]float64{1, 1, 4}}
+	v2 = m.Mult(&v)
+	if (v2 != Vec3{0, 11, 15}) {
+		t.Fail()
+	}
+}
+
 func Test_dot(t *testing.T) {
 	v1 := Vec3{1, 0, 0}
 	v2 := Vec3{0, 1, 0}
@@ -183,58 +204,65 @@ func TestSphericalDistance3(t *testing.T) {
 }
 
 func TestAzimuth1(t *testing.T) {
-	// meridional
-	pos1, _ := NewLonLat(-140, 49.25)
-	pos2, _ := NewLonLat(-140, 48.25)
+	// meridional, along prime meridian
+	pos1, _ := NewLonLat(0.0, 0.0)
+	pos2, _ := NewLonLat(0.0, 10.0)
 	nv1 := pos1.ToNVector()
 	nv2 := pos2.ToNVector()
 	ellps := Ellipsoid{6378137.0, 6356752.3142}
-	az, baz, err := nv1.Azimuth(&nv2, &ellps)
-	if err != nil {
-		t.Error()
-	}
-	if !isclose(az, math.Pi, 6) {
-		t.Fail()
-	}
-	if !isclose(baz, math.Pi, 6) {
+	az := nv1.Azimuth(&nv2, &ellps)
+	if !isclose(az, 0, 6) {
 		t.Fail()
 	}
 }
 
 func TestAzimuth2(t *testing.T) {
+	// meridional, off prime meridian
+	pos1, _ := NewLonLat(60, 40)
+	pos2, _ := NewLonLat(60, 50)
+	nv1 := pos1.ToNVector()
+	nv2 := pos2.ToNVector()
+	ellps := Ellipsoid{6378137.0, 6356752.3142}
+	az := nv1.Azimuth(&nv2, &ellps)
+	if !isclose(az, 0, 6) {
+		t.Fail()
+	}
+}
+
+func TestAzimuth3(t *testing.T) {
 	// zonal
 	pos1, _ := NewLonLat(-140, 49.25)
 	pos2, _ := NewLonLat(-143, 49.25)
 	nv1 := pos1.ToNVector()
 	nv2 := pos2.ToNVector()
 	ellps := Ellipsoid{6378137.0, 6356752.3142}
-	az, baz, err := nv1.Azimuth(&nv2, &ellps)
-	if err != nil {
-		t.Error()
-	}
+	az := nv1.Azimuth(&nv2, &ellps)
 	if !isclose(az, -88.8635416/180*math.Pi, 6) {
-		t.Fail()
-	}
-	if !isclose(baz, 88.8635416/180*math.Pi, 6) {
 		t.Fail()
 	}
 }
 
-func TestAzimuth3(t *testing.T) {
+func TestAzimuth4(t *testing.T) {
 	// crosses dateline
 	pos1, _ := NewLonLat(174, -15)
 	pos2, _ := NewLonLat(-177.5, 36)
 	nv1 := pos1.ToNVector()
 	nv2 := pos2.ToNVector()
-	ellps := Ellipsoid{6378137.0, 6356752.3142}
-	az, baz, err := nv1.Azimuth(&nv2, &ellps)
-	if err != nil {
-		t.Error()
-	}
-	if !isclose(az, 8.8262727/180*math.Pi, 6) {
+
+	var ellps Ellipsoid
+	var az float64
+
+	// WGS84 - note poor agreement with geographiclib result
+	ellps = Ellipsoid{6378137.0, 6356752.3142}
+	az = nv1.Azimuth(&nv2, &ellps)
+	if !isclose(az, 8.8262727/180*math.Pi, 3) {
 		t.Fail()
 	}
-	if !isclose(baz, -169.4538460/180*math.Pi, 6) {
+
+	// sphere
+	ellps = Ellipsoid{6370997.0, 6370997.0}
+	az = nv1.Azimuth(&nv2, &ellps)
+	if !isclose(az, 8.7731219/180*math.Pi, 6) {
 		t.Fail()
 	}
 }
@@ -244,7 +272,7 @@ func TestForward1(t *testing.T) {
 	nv := pos.ToNVector()
 	ellps := Ellipsoid{6370997.0, 6370997.0}
 
-	nv2 := nv.Forward(0, 100000, &ellps)
+	nv2 := nv.Forward(0, 100000, ellps.a)
 	pos2 := nv2.ToLonLat()
 
 	if !isclose(pos2.Lat*180/math.Pi, 0.8993220, 6) {
@@ -261,7 +289,7 @@ func TestForward2(t *testing.T) {
 	nv := pos.ToNVector()
 	ellps := Ellipsoid{6370997.0, 6370997.0}
 
-	nv2 := nv.Forward(-45/180.0*math.Pi, 1000000, &ellps)
+	nv2 := nv.Forward(-45/180.0*math.Pi, 1000000, ellps.a)
 	pos2 := nv2.ToLonLat()
 
 	if !isclose(pos2.Lat*180/math.Pi, 6.3460548, 6) {

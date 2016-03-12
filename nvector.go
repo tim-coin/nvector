@@ -45,7 +45,7 @@ type LonLat struct {
 }
 
 // Ellipsoid represents a geographical ellipsoid in terms of its major and
-// minor exes
+// minor axes
 type Ellipsoid struct {
 	a, b float64
 }
@@ -70,6 +70,22 @@ func (v *Vec3) Magnitude() float64 {
 	return math.Sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
 }
 
+func (m *Matrix3) Mult(v *Vec3) Vec3 {
+	var p Vec3
+	p[0] = v[0]*m[0][0] + v[1]*m[0][1] + v[2]*m[0][2]
+	p[1] = v[0]*m[1][0] + v[1]*m[1][1] + v[2]*m[1][2]
+	p[2] = v[0]*m[2][0] + v[1]*m[2][1] + v[2]*m[2][2]
+	return p
+}
+
+func (m *Matrix3) Transpose() Matrix3 {
+	var tr Matrix3
+	tr[0] = [3]float64{m[0][0], m[1][0], m[2][0]}
+	tr[1] = [3]float64{m[0][1], m[1][1], m[2][1]}
+	tr[2] = [3]float64{m[0][2], m[1][2], m[2][2]}
+	return tr
+}
+
 func NewLonLat(londeg float64, latdeg float64) (*LonLat, error) {
 	lon := londeg * math.Pi / 180.0
 	lat := latdeg * math.Pi / 180.0
@@ -81,7 +97,7 @@ func NewLonLat(londeg float64, latdeg float64) (*LonLat, error) {
 	return &LonLat{lon, lat}, nil
 }
 
-// ToNVector returns a cartesian position vector.
+// ToNVector returns a Cartesian position vector.
 func (ll *LonLat) ToNVector() NVector {
 	z := math.Sin(ll.Lat)
 	y := math.Sin(ll.Lon) * math.Cos(ll.Lat)
@@ -106,10 +122,10 @@ func (nv *NVector) ToLonLat() LonLat {
 // ToPVector returns a surface-normal vector, given an ellipsoid.
 func (nv *NVector) ToPVector(ellps *Ellipsoid) PVector {
 	absq := ellps.a * ellps.a / (ellps.b * ellps.b)
-	coeff := ellps.b / math.Sqrt(nv.Vec3[0]*nv.Vec3[0]+
+	coeff := ellps.b / math.Sqrt(nv.Vec3[2]*nv.Vec3[2]+
 		absq*nv.Vec3[1]*nv.Vec3[1]+
-		absq*nv.Vec3[2]*nv.Vec3[2])
-	return PVector{Vec3{coeff * nv.Vec3[0], absq * nv.Vec3[1], absq * nv.Vec3[2]}}
+		absq*nv.Vec3[0]*nv.Vec3[0])
+	return PVector{Vec3{coeff * absq * nv.Vec3[0], coeff * absq * nv.Vec3[1], coeff * nv.Vec3[2]}}
 }
 
 // ToNVector returns a Cartesian position vector, given an ellipsoid.
@@ -118,8 +134,8 @@ func (pv *PVector) ToNVector(ellps *Ellipsoid) NVector {
 	eccen2 := eccen * eccen
 	eccen4 := eccen2 * eccen2
 	a2 := ellps.a * ellps.a
-	q := (1 - eccen2) / a2 * pv.Vec3[0] * pv.Vec3[0]
-	p := (pv.Vec3[1]*pv.Vec3[1] + pv.Vec3[2]*pv.Vec3[2]) / a2
+	q := (1 - eccen2) / a2 * pv.Vec3[2] * pv.Vec3[2]
+	p := (pv.Vec3[1]*pv.Vec3[1] + pv.Vec3[0]*pv.Vec3[0]) / a2
 	r := (p + q - eccen4) / 6.0
 	s := eccen4 * p * q / (4 * math.Pow(r, 3))
 	t := math.Cbrt(1 + s + math.Sqrt(s*(2+s)))
@@ -127,32 +143,36 @@ func (pv *PVector) ToNVector(ellps *Ellipsoid) NVector {
 	v := math.Sqrt(u*u + eccen4*q)
 	w := 0.5 * eccen2 * (u + v - q) / v
 	k := math.Sqrt(u+v+w*w) - w
-	d := k * math.Sqrt(pv.Vec3[1]*pv.Vec3[1]+pv.Vec3[2]*pv.Vec3[2]) / (k + eccen2)
-	coeff := 1.0 / math.Sqrt(d*d+pv.Vec3[0]*pv.Vec3[0])
+	d := k * math.Sqrt(pv.Vec3[1]*pv.Vec3[1]+pv.Vec3[0]*pv.Vec3[0]) / (k + eccen2)
+	coeff := 1.0 / math.Sqrt(d*d+pv.Vec3[2]*pv.Vec3[2])
 	kke2 := k / (k + eccen2)
 	return NVector{
-		Vec3{coeff * pv.Vec3[0],
-			coeff * kke2 * pv.Vec3[1],
-			coeff * kke2 * pv.Vec3[2]}}
+		Vec3{-coeff * kke2 * pv.Vec3[0],
+			-coeff * kke2 * pv.Vec3[1],
+			coeff * pv.Vec3[2]}}
 }
 
 // RotationMatrix returns the 3x3 matrix relating the Earth-centered
-// non-singular coordinate frame to the North-up singular coordinate frame.
+// non-singular coordinate frame to the North-East-Down singular coordinate
+// frame.
 func (nv *NVector) RotationMatrix() Matrix3 {
-	k_east := cross(&Vec3{0, 0, -1}, &nv.Vec3)
-	k_north := cross(&nv.Vec3, k_east)
-	a := k_north[0] / k_north.Magnitude()
-	b := k_east[0] / k_east.Magnitude()
-	c := nv.Vec3[0]
-	d := k_north[1] / k_north.Magnitude()
-	e := k_east[1] / k_east.Magnitude()
-	f := nv.Vec3[1]
-	g := k_north[2] / k_north.Magnitude()
-	h := k_east[2] / k_east.Magnitude()
-	i := nv.Vec3[2]
+	east := cross(&Vec3{0, 0, 1}, &nv.Vec3)
+	north := cross(&nv.Vec3, east)
+
+	a := north[0] / north.Magnitude()
+	b := east[0] / east.Magnitude()
+	c := -nv.Vec3[0]
+	d := north[1] / north.Magnitude()
+	e := east[1] / east.Magnitude()
+	f := -nv.Vec3[1]
+	g := north[2] / north.Magnitude()
+	h := east[2] / east.Magnitude()
+	i := -nv.Vec3[2]
 	return Matrix3{[3]float64{a, b, c}, [3]float64{d, e, f}, [3]float64{g, h, i}}
 }
 
+// SphericalDistance returns the distance from another NVector on a sphere with
+// radius *R*
 func (nv *NVector) SphericalDistance(nv2 *NVector, R float64) float64 {
 	s_ab := math.Atan2(cross(&nv.Vec3, &nv2.Vec3).Magnitude(),
 		dot(&nv.Vec3, &nv2.Vec3)) * R
@@ -161,15 +181,20 @@ func (nv *NVector) SphericalDistance(nv2 *NVector, R float64) float64 {
 
 // Azimuth returns the azimuth and back azimuth from one NVector to another
 // along an ellipse
-func (nv *NVector) Azimuth(nv2 *NVector, ellps *Ellipsoid) (float64, float64, error) {
-	return 0.0, 0.0, nil
+func (nv *NVector) Azimuth(nv2 *NVector, ellps *Ellipsoid) float64 {
+	pv1 := nv.ToPVector(ellps)
+	pv2 := nv2.ToPVector(ellps)
+	delta_E := Vec3{pv2.Vec3[0] - pv1.Vec3[0], pv2.Vec3[1] - pv1.Vec3[1], pv2.Vec3[2] - pv1.Vec3[2]}
+
+	rotMat_EN := nv.RotationMatrix()
+	rotMat_NE := rotMat_EN.Transpose()
+	delta_N := rotMat_NE.Mult(&delta_E)
+	return math.Atan2(delta_N[1], delta_N[0])
 }
 
 // Forward returns the NVector position arrived at by moving in an azimuthal
 // direction for a given distance along an ellipse
-func (nv *NVector) Forward(az, distance float64, ellps *Ellipsoid) NVector {
-	//north := nv.North()
-	//east := nv.East()
+func (nv *NVector) Forward(az, distance, radius float64) NVector {
 	east := cross(&nv.Vec3, &Vec3{0, 0, -1})
 	north := cross(&nv.Vec3, east)
 
@@ -180,7 +205,7 @@ func (nv *NVector) Forward(az, distance float64, ellps *Ellipsoid) NVector {
 		north[2]*cos_az + east[2]*sin_az}
 
 	// Great circle angle travelled
-	sab := distance / ellps.a
+	sab := distance / radius
 	cos_sab := math.Cos(sab)
 	sin_sab := math.Sin(sab)
 	resultant := Vec3{nv.Vec3[0]*cos_sab + vec_az[0]*sin_sab,
@@ -202,4 +227,8 @@ func (nv *NVector) Interpolate(nv2 *NVector, frac float64) NVector {
 	result.Vec3[1] = interpLinear(frac, 0, 1, nv.Vec3[1], nv2.Vec3[1])
 	result.Vec3[2] = interpLinear(frac, 0, 1, nv.Vec3[2], nv2.Vec3[2])
 	return *result
+}
+
+func Intersection(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
+	return *new(NVector), nil
 }
