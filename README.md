@@ -10,3 +10,7 @@ This performs approximate and exact geodesic calculations using the concept of
 See the above or
 [http://www.navlab.net/nvector/](http://www.navlab.net/nvector/) for
 documentation on the methods used.
+
+Note that in contrast to the above, this library uses a right-handed orthogonal
+*XYZ* earth reference frame with *Z* aligned along the rotation axis, *X*
+passing through the Prime Meridian, and *Y* passing though 90⁰E longitude.
