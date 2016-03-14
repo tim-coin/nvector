@@ -58,6 +58,13 @@ func (e InvalidLatitudeError) Error() string {
 	return fmt.Sprintf("invalid latitude: %f", e.Lat)
 }
 
+type NoIntersectionError struct {
+}
+
+func (e NoIntersectionError) Error() string {
+	return fmt.Sprintf("no intersection")
+}
+
 func cross(u, v *Vec3) *Vec3 {
 	return &Vec3{u[1]*v[2] - u[2]*v[1], u[2]*v[0] - u[0]*v[2], u[0]*v[1] - u[1]*v[0]}
 }
@@ -229,6 +236,43 @@ func (nv *NVector) Interpolate(nv2 *NVector, frac float64) NVector {
 	return *result
 }
 
+// Intersection returns the spheroidal intersection point between two geodesics
+// defined by an NVector pair, if it exists. If no intersection exists,
+// NoIntersectionError is returned
 func Intersection(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
-	return *new(NVector), nil
+	var normalA, normalB, intersection *Vec3
+	var err error
+
+	normalA = cross(&nv1a.Vec3, &nv1b.Vec3)
+	normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
+	intersection = cross(normalA, normalB)
+
+	// Select the intersection on the right side of the spheroid
+	if dot(intersection, &nv1a.Vec3) < 0 {
+		intersection[0] = -intersection[0]
+		intersection[1] = -intersection[1]
+		intersection[2] = -intersection[2]
+	}
+
+	result := NVector{*intersection}
+
+	// Tests whether intersection is between segment endpoints to within ~4cm
+	var dab, dai, dbi float64
+	dab = nv1a.SphericalDistance(nv1b, 1.0)
+	dai = nv1a.SphericalDistance(&result, 1.0)
+	dbi = nv1b.SphericalDistance(&result, 1.0)
+
+	if math.Abs(dab-dai-dbi) > 1e-9 {
+		err = NoIntersectionError{}
+	}
+
+	dab = nv2a.SphericalDistance(nv2b, 1.0)
+	dai = nv2a.SphericalDistance(&result, 1.0)
+	dbi = nv2b.SphericalDistance(&result, 1.0)
+
+	if math.Abs(dab-dai-dbi) > 1e-9 {
+		err = NoIntersectionError{}
+	}
+
+	return NVector{*intersection}, err
 }
