@@ -342,24 +342,6 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	}
 
 
-	// Tests whether intersection is between segment endpoints to within ~4cm
-	var dab, dai, dbi float64
-	dab = nv1a.SphericalDistance(nv1b, 1.0)
-	dai = nv1a.SphericalDistance(&result, 1.0)
-	dbi = nv1b.SphericalDistance(&result, 1.0)
-
-	if math.Abs(dab-dai-dbi) > 1e-9 {
-		err = NoIntersectionError{}
-	}
-
-	dab = nv2a.SphericalDistance(nv2b, 1.0)
-	dai = nv2a.SphericalDistance(&result, 1.0)
-	dbi = nv2b.SphericalDistance(&result, 1.0)
-
-	if math.Abs(dab-dai-dbi) > 1e-9 {
-		err = NoIntersectionError{}
-	}
-
 	//fmt.Println("Point Longitude is,", nv1a.ToLonLat().Lon)
 	return result, err
 }
