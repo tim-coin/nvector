@@ -357,8 +357,8 @@ func TestIntersection1(t *testing.T) {
 	ll_intersection := nv_intersection.ToLonLat()
 
 	fmt.Println("error", err)
-	fmt.Println("lon", ll_intersection.Lon*180/math.Pi)
-	fmt.Println("lat", ll_intersection.Lat*180/math.Pi)
+	fmt.Println("intersection lon", ll_intersection.Lon*180/math.Pi)
+	fmt.Println("intersection lat", ll_intersection.Lat*180/math.Pi)
 
 	if (!isclose(ll_intersection.Lon*180/math.Pi, -40, 8)) ||
 		(!isclose(ll_intersection.Lat*180/math.Pi, 0.0, 8)) {
@@ -379,6 +379,36 @@ func TestIntersection2(t *testing.T) {
 	nv4 := ll4.ToNVector()
 
 	_, err := Intersection(&nv1, &nv2, &nv3, &nv4)
+	expected_err := NoIntersectionError{}
+	if err != expected_err {
+		t.Fail()
+	}
+}
+
+
+func TestIntersection3(t *testing.T) {
+	// No intersection
+	ll1, _ := NewLonLat(80, 20)
+	ll2, _ := NewLonLat(-90, 90)
+	ll3, _ := NewLonLat(180, 0)
+	ll4, _ := NewLonLat(-180 , 0)
+
+	nv1 := ll1.ToNVector()
+	nv2 := ll2.ToNVector()
+	nv3 := ll3.ToNVector()
+	nv4 := ll4.ToNVector()
+
+	p, err := Intersection2(&nv1, &nv2, &nv3, &nv4)
+
+
+	ll_intersection := p.ToLonLat()
+
+	fmt.Println("error", err)
+	fmt.Println("intersection lon", ll_intersection.Lon*180/math.Pi)
+	fmt.Println("intersection lat", ll_intersection.Lat*180/math.Pi)
+
+
+	fmt.Println("T402: ",p, ll1.Lon)
 	expected_err := NoIntersectionError{}
 	if err != expected_err {
 		t.Fail()

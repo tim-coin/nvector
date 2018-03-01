@@ -66,6 +66,7 @@ func (e NoIntersectionError) Error() string {
 }
 
 func cross(u, v *Vec3) *Vec3 {
+
 	return &Vec3{u[1]*v[2] - u[2]*v[1], u[2]*v[0] - u[0]*v[2], u[0]*v[1] - u[1]*v[0]}
 }
 
@@ -294,6 +295,16 @@ func negative(in *Vec3) (*Vec3){
 // defined by an NVector pair, if it exists. If no intersection exists,
 // NoIntersectionError is returned
 func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
+	//Add a delta if both points are same for Point of Line
+	delta := 1e-9
+	fmt.Println(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon, -1*math.Pi, delta)
+	if(nv2a.ToLonLat().Lon == nv2b.ToLonLat().Lon && nv2a.ToLonLat().Lon == -1*math.Pi){
+		//Fixing singularity
+		_t , _ := NewLonLat((nv2a.ToLonLat().Lon - delta)*180/math.Pi, (nv2a.ToLonLat().Lat)*180/math.Pi)
+		_t1 := _t.ToNVector()
+		nv2a = &_t1
+		//fmt.Println("Needs Delta", nv2a)
+	}
 	//nv1a is the point
 	//nv1b is the pole
 	//nv2a and nv2b is the line with which intersection is sought
@@ -308,13 +319,14 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	in1 := NVector{*intersection}
 	in2 := NVector{*intersection2}
 
-
+	//fmt.Println("311: ", normalB,normalA)
 
 
 	din1 :=  nv1a.SphericalDistance(&in1, 1.0) //Distance of intersection 1
 	din2 :=  nv1a.SphericalDistance(&in2, 1.0) //Distance of intersection 2
 
 	llin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
+	//fmt.Println("lon:::",in1, llin*180/math.Pi)
 	result := in1
 	if(din2 < din1){
 		llin = in2.ToLonLat().Lon
@@ -348,5 +360,6 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 		err = NoIntersectionError{}
 	}
 
-	return NVector{*intersection}, err
+	//fmt.Println("Point Longitude is,", nv1a.ToLonLat().Lon)
+	return result, err
 }
