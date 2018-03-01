@@ -344,6 +344,6 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	}
 
 
-	fmt.Println("Point Longitude is,", nv1a.ToLonLat().Lon)
+	fmt.Println("Point Longitude is,", nv1a.ToLonLat().Lon*180/math.Pi)
 	return result, err
 }
