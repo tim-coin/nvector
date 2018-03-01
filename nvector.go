@@ -276,3 +276,77 @@ func Intersection(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 
 	return NVector{*intersection}, err
 }
+
+
+//Calculate the negative reflection of intersection
+func negative(in *Vec3) (*Vec3){
+	intersection2 := in
+	intersection2[0] = -in[0]
+	intersection2[1] = -in[1]
+	intersection2[2] = -in[2]
+	return intersection2
+
+}
+
+// Intersection2 returns the spheroidal intersection point between two geodesics based on longitude range check.
+//If both intersections are within the longitude, it is OK. Else...
+//If one in range is shortest distance to the point, it is OK
+// defined by an NVector pair, if it exists. If no intersection exists,
+// NoIntersectionError is returned
+func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
+	//nv1a is the point
+	//nv1b is the pole
+	//nv2a and nv2b is the line with which intersection is sought
+	var normalA, normalB, intersection,intersection2 *Vec3
+	var err error
+
+	normalA = cross(&nv1a.Vec3, &nv1b.Vec3)
+	normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
+	intersection = cross(normalA, normalB)
+	intersection2 = negative(intersection)
+
+	in1 := NVector{*intersection}
+	in2 := NVector{*intersection2}
+
+
+
+
+	din1 :=  nv1a.SphericalDistance(&in1, 1.0) //Distance of intersection 1
+	din2 :=  nv1a.SphericalDistance(&in2, 1.0) //Distance of intersection 2
+
+	llin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
+	result := in1
+	if(din2 < din1){
+		llin = in2.ToLonLat().Lon
+		result = in2
+	} //Now we have the nearest intersection point. Finally check if it is in range of POL(point of Line)
+
+
+	prange := []float64{math.Min(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon), math.Max(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon)} //the line of interest
+
+	//Check if it doesnt exist in range, generate error
+	if( llin > prange[1] && llin < prange[0] ){
+		err = NoIntersectionError{}
+	}
+
+
+	// Tests whether intersection is between segment endpoints to within ~4cm
+	var dab, dai, dbi float64
+	dab = nv1a.SphericalDistance(nv1b, 1.0)
+	dai = nv1a.SphericalDistance(&result, 1.0)
+	dbi = nv1b.SphericalDistance(&result, 1.0)
+
+	if math.Abs(dab-dai-dbi) > 1e-9 {
+		err = NoIntersectionError{}
+	}
+
+	dab = nv2a.SphericalDistance(nv2b, 1.0)
+	dai = nv2a.SphericalDistance(&result, 1.0)
+	dbi = nv2b.SphericalDistance(&result, 1.0)
+
+	if math.Abs(dab-dai-dbi) > 1e-9 {
+		err = NoIntersectionError{}
+	}
+
+	return NVector{*intersection}, err
+}
