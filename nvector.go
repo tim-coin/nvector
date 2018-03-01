@@ -326,7 +326,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	din2 :=  nv1a.SphericalDistance(&in2, 1.0) //Distance of intersection 2
 
 	llin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
-	//fmt.Println("lon:::",in1, llin*180/math.Pi)
+	fmt.Println("lon:::",in1, llin*180/math.Pi)
 	result := in1
 	if(din2 < din1){
 		llin = in2.ToLonLat().Lon
@@ -340,7 +340,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	if( llin > prange[1] && llin < prange[0] ){
 		err = NoIntersectionError{}
 	}else{
-		fmt.Println("T343:" , llin, " is between ", prange[0], " & ", prange[1])
+		fmt.Println("T343:" , llin, " is between ", prange[0]*180/math.Pi, " & ", prange[1]*180/math.Pi)
 	}
 
 
