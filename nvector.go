@@ -325,22 +325,25 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	din1 :=  nv1a.SphericalDistance(&in1, 1.0) //Distance of intersection 1
 	din2 :=  nv1a.SphericalDistance(&in2, 1.0) //Distance of intersection 2
 
-	llin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
-	fmt.Println("lon:::",in1, llin*180/math.Pi)
+	loin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
+	lain := in1.ToLonLat().Lat //Let's assume that 1st intersection is nearest to POI (point of interest)
+	fmt.Println("lon:::",in1, loin*180/math.Pi)
 	result := in1
 	if(din2 < din1){
-		llin = in2.ToLonLat().Lon
+		loin = in2.ToLonLat().Lon
+		lain = in2.ToLonLat().Lat
 		result = in2
 	} //Now we have the nearest intersection point. Finally check if it is in range of POL(point of Line)
 
 
-	prange := []float64{math.Min(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon), math.Max(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon)} //the line of interest
+	lorange := []float64{math.Min(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon), math.Max(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon)} //the line of interest
+	larange := []float64{math.Min(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat), math.Max(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat)} //the line of interest
 
 	//Check if it doesnt exist in range, generate error
-	if( llin > prange[1] && llin < prange[0] ){
+	if( (loin > lorange[1] || loin < lorange[0] ) || (lain > larange[1] || lain < larange[0] ) ){
 		err = NoIntersectionError{}
 	}else{
-		fmt.Println("T343:" , llin*180/math.Pi, " is between ", prange[0]*180/math.Pi, " & ", prange[1]*180/math.Pi)
+		fmt.Println("T343:" , loin*180/math.Pi, " is between ", lorange[0]*180/math.Pi, " & ", lorange[1]*180/math.Pi)
 	}
 
 
