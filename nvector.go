@@ -340,7 +340,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	if( llin > prange[1] && llin < prange[0] ){
 		err = NoIntersectionError{}
 	}else{
-		fmt.Println("T343:" , llin, " is between ", prange[0]*180/math.Pi, " & ", prange[1]*180/math.Pi)
+		fmt.Println("T343:" , llin*180/math.Pi, " is between ", prange[0]*180/math.Pi, " & ", prange[1]*180/math.Pi)
 	}
 
 
