@@ -339,6 +339,8 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	//Check if it doesnt exist in range, generate error
 	if( llin > prange[1] && llin < prange[0] ){
 		err = NoIntersectionError{}
+	}else{
+		fmt.Println("T343:" , llin, " is between ", prange[0], " & ", prange[1])
 	}
 
 
