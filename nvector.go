@@ -279,15 +279,7 @@ func Intersection(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 }
 
 
-//Calculate the negative reflection of intersection
-func negative(in *Vec3) (*Vec3){
-	intersection2 := in
-	intersection2[0] = -in[0]
-	intersection2[1] = -in[1]
-	intersection2[2] = -in[2]
-	return intersection2
 
-}
 
 // Intersection2 returns the spheroidal intersection point between two geodesics based on longitude range check.
 //If both intersections are within the longitude, it is OK. Else...
@@ -297,7 +289,7 @@ func negative(in *Vec3) (*Vec3){
 func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	//Add a delta if both points are same for Point of Line
 	delta := 1e-9
-	fmt.Println(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon, -1*math.Pi, delta)
+	//fmt.Println(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon, -1*math.Pi, delta)
 	if(nv2a.ToLonLat().Lon == nv2b.ToLonLat().Lon && nv2a.ToLonLat().Lon == -1*math.Pi){
 		//Fixing singularity
 		_t , _ := NewLonLat((nv2a.ToLonLat().Lon - delta)*180/math.Pi, (nv2a.ToLonLat().Lat)*180/math.Pi)
@@ -308,44 +300,76 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	//nv1a is the point
 	//nv1b is the pole
 	//nv2a and nv2b is the line with which intersection is sought
-	var normalA, normalB, intersection,intersection2 *Vec3
+	var normalA, normalB, intersection *Vec3
 	var err error
 
 	normalA = cross(&nv1a.Vec3, &nv1b.Vec3)
 	normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
 	intersection = cross(normalA, normalB)
-	intersection2 = negative(intersection)
+	intersection2 := Vec3{0,0,0}  //negative(intersection)
+	intersection2[0] = -1*intersection[0]
+	intersection2[1] = -1*intersection[1]
+	intersection2[2] = -1*intersection[2]
 
 	in1 := NVector{*intersection}
-	in2 := NVector{*intersection2}
-
-	//fmt.Println("311: ", normalB,normalA)
-
+	in2 := NVector{intersection2}
+	/*
+	fmt.Println("322: ", in1, in2)
+	fmt.Println("326: ", intersection, intersection2)
+	fmt.Println(":", intersection[0],1*intersection2[0])
+	fmt.Println(":", intersection[1],intersection2[1])
+	fmt.Println(":", intersection[2],intersection2[2])
+	*/
 
 	din1 :=  nv1a.SphericalDistance(&in1, 1.0) //Distance of intersection 1
 	din2 :=  nv1a.SphericalDistance(&in2, 1.0) //Distance of intersection 2
 
 	loin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
 	lain := in1.ToLonLat().Lat //Let's assume that 1st intersection is nearest to POI (point of interest)
-	fmt.Println("lon:::",in1, loin*180/math.Pi)
+	fmt.Println("lon:::",in1.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lon*180/math.Pi)
 	result := in1
 	if(din2 < din1){
 		loin = in2.ToLonLat().Lon
 		lain = in2.ToLonLat().Lat
 		result = in2
 	} //Now we have the nearest intersection point. Finally check if it is in range of POL(point of Line)
-
+	fmt.Println("Dist: ",nv1a.ToLonLat().Lon*180/math.Pi, din1, din2)
 
 	lorange := []float64{math.Min(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon), math.Max(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon)} //the line of interest
 	larange := []float64{math.Min(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat), math.Max(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat)} //the line of interest
 
 	//Check if it doesnt exist in range, generate error
-	if( (loin > lorange[1] || loin < lorange[0] ) || (lain > larange[1] || lain < larange[0] ) ){
+	//if( (loin > lorange[1] || loin < lorange[0] ) || (lain > larange[1] || lain < larange[0] ) ){
+	if( (math.Cos(loin) > math.Cos(lorange[1]) || math.Cos(loin) < math.Cos(lorange[0]) ) || (math.Cos(lain) > math.Cos(larange[1]) || math.Cos(lain) < math.Cos(larange[0]) ) ){
 		err = NoIntersectionError{}
+		fmt.Println("T353: ", loin, lorange,";",lain, larange)
+		fmt.Println("T354: ", math.Cos(loin), math.Cos(lorange[0]), math.Cos(lorange[1]),";",math.Cos(lain), math.Cos(larange[0]),math.Cos(larange[1]) )
 	}else{
-		fmt.Println("T343:" , loin*180/math.Pi, " is between ", lorange[0]*180/math.Pi, " & ", lorange[1]*180/math.Pi)
+		fmt.Println("T356: ", math.Cos(loin), math.Cos(lorange[0]), math.Cos(lorange[1]),";",math.Cos(lain), math.Cos(larange[0]),math.Cos(larange[1]) )
+
+		fmt.Println("T358:" , loin*180/math.Pi, " is between ", lorange[0]*180/math.Pi, " & ", lorange[1]*180/math.Pi)
 	}
 
+
+	// Tests whether intersection is between segment endpoints to within ~4cm
+	var dab, dai, dbi float64
+	dab = nv1a.SphericalDistance(nv1b, 1.0)
+	dai = nv1a.SphericalDistance(&result, 1.0)
+	dbi = nv1b.SphericalDistance(&result, 1.0)
+	fmt.Println("T359: ", dab, dai,dbi, (dab-dai-dbi))
+	if math.Abs(dab-dai-dbi) > 1e-9 {
+		err = NoIntersectionError{}
+	}
+
+	/* This is not needed, as replaced by longitude test
+	dab = nv2a.SphericalDistance(nv2b, 1.0)
+	dai = nv2a.SphericalDistance(&result, 1.0)
+	dbi = nv2b.SphericalDistance(&result, 1.0)
+	fmt.Println("T367: ", dab, dai,dbi, (dab-dai-dbi))
+	if math.Abs(dab-dai-dbi) > 1e-9 {
+		err = NoIntersectionError{}
+	}
+	*/
 
 	fmt.Println("Point Longitude is,", nv1a.ToLonLat().Lon*180/math.Pi)
 	return result, err
