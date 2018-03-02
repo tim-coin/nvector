@@ -434,16 +434,16 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	//if( (loin > lorange[1] || loin < lorange[0] ) || (lain > larange[1] || lain < larange[0] ) ){
 	if( (math.Cos(loin) > math.Cos(lorange[1]) || math.Cos(loin) < math.Cos(lorange[0]) ) || (math.Cos(lain) > math.Cos(larange[1]) || math.Cos(lain) < math.Cos(larange[0]) ) ){
 		err = NoIntersectionError{}
-		fmt.Println("T353: ", loin, lorange,";",lain, larange)
-		fmt.Println("T354: ", math.Cos(loin), math.Cos(lorange[0]), math.Cos(lorange[1]),";",math.Cos(lain), math.Cos(larange[0]),math.Cos(larange[1]) )
+		fmt.Println("T437: ", loin, lorange,";",lain, larange)
+		fmt.Println("T438: ", math.Cos(loin), math.Cos(lorange[0]), math.Cos(lorange[1]),";",math.Cos(lain), math.Cos(larange[0]),math.Cos(larange[1]) )
 	}else{
-		fmt.Println("T356: ", math.Cos(loin), math.Cos(lorange[0]), math.Cos(lorange[1]),";",math.Cos(lain), math.Cos(larange[0]),math.Cos(larange[1]) )
+		fmt.Println("T440: ", math.Cos(loin), math.Cos(lorange[0]), math.Cos(lorange[1]),";",math.Cos(lain), math.Cos(larange[0]),math.Cos(larange[1]) )
 
-		fmt.Println("T358:" , loin*180/math.Pi, " is between ", lorange[0]*180/math.Pi, " & ", lorange[1]*180/math.Pi)
+		fmt.Println("T442:" , loin*180/math.Pi, " is between ", lorange[0]*180/math.Pi, " & ", lorange[1]*180/math.Pi)
 	}
 
 
 	result2 := result.ToLonLat()
-	fmt.Println("Point Longitude is,", nv1a, nv1a.ToLonLat().Lon*180/math.Pi)
+	fmt.Println("Point  is,", nv1a,"; Lon: ", nv1a.ToLonLat().Lon*180/math.Pi)
 	return result2, err
 }
