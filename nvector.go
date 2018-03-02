@@ -378,7 +378,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 
 // Extrapolation returns the spheroidal  point where the line will intersect
 // NoIntersectionError is returned
-func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
+func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	//Add a delta if both points are same for Point of Line
 	delta := 1e-9
 	//fmt.Println(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon, -1*math.Pi, delta)
@@ -443,7 +443,7 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	}
 
 
-
+	result2 := result.ToLonLat()
 	fmt.Println("Point Longitude is,", nv1a.ToLonLat().Lon*180/math.Pi)
-	return result, err
+	return result2, err
 }
