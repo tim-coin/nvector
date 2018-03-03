@@ -324,18 +324,20 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	din1 :=  nv1a.SphericalDistance(&in1, 1.0) //Distance of intersection 1
 	din2 :=  nv1a.SphericalDistance(&in2, 1.0) //Distance of intersection 2
 
-	loin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
-	lain := in1.ToLonLat().Lat //Let's assume that 1st intersection is nearest to POI (point of interest)
-	fmt.Println("LOI:::",nv2a.ToLonLat().Lon*180/math.Pi,nv2a.ToLonLat().Lat*180/math.Pi,"|", nv2b.ToLonLat().Lon*180/math.Pi, nv2b.ToLonLat().Lat*180/math.Pi)
-	fmt.Println("Intersects:::",in1.ToLonLat().Lon*180/math.Pi,in1.ToLonLat().Lat*180/math.Pi,"|", in2.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lat*180/math.Pi)
+	//loin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
+	//lain := in1.ToLonLat().Lat //Let's assume that 1st intersection is nearest to POI (point of interest)
+	//fmt.Println("LOI:::",nv2a.ToLonLat().Lon*180/math.Pi,nv2a.ToLonLat().Lat*180/math.Pi,"|", nv2b.ToLonLat().Lon*180/math.Pi, nv2b.ToLonLat().Lat*180/math.Pi)
+	//fmt.Println("Intersects:::",in1.ToLonLat().Lon*180/math.Pi,in1.ToLonLat().Lat*180/math.Pi,"|", in2.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lat*180/math.Pi)
 	result := in1
 	if(din2 < din1){
-		loin = in2.ToLonLat().Lon
-		lain = in2.ToLonLat().Lat
+		//loin = in2.ToLonLat().Lon
+		//lain = in2.ToLonLat().Lat
 		result = in2
 	} //Now we have the nearest intersection point. Finally check if it is in range of POL(point of Line)
-	fmt.Println("Dist: ",loin*180/math.Pi, ":",din1, din2)
+	//fmt.Println("Dist: ",loin*180/math.Pi, ":",din1, din2)
 
+
+	/*
 	lorange := []float64{math.Min(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon), math.Max(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon)} //the line of interest
 	larange := []float64{math.Min(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat), math.Max(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat)} //the line of interest
 
@@ -345,6 +347,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	fmt.Println( math.Cos(loin) > math.Cos(lorange[1]) , math.Cos(loin) < math.Cos(lorange[0])  , math.Cos(lain) > math.Cos(larange[1]) , math.Cos(lain) < math.Cos(larange[0])  )
 	fmt.Println( math.Cos(loin) ,">", math.Cos(lorange[1]) , math.Cos(loin) ,"<", math.Cos(lorange[0])  , math.Cos(lain) ,">", math.Cos(larange[1]) , math.Cos(lain) ,"<", math.Cos(larange[0])  )
 	fmt.Println( (loin)*180/math.Pi ,">", (lorange[1])*180/math.Pi , (loin)*180/math.Pi ,"<", (lorange[0])*180/math.Pi ,"|" , (lain)*180/math.Pi ,">", (larange[1])*180/math.Pi , (lain)*180/math.Pi ,"<", (larange[0])*180/math.Pi  )
+
 	if( (math.Cos(loin) > math.Cos(lorange[1]) || math.Cos(loin) < math.Cos(lorange[0]) ) || (math.Cos(lain) > math.Cos(larange[1]) || math.Cos(lain) < math.Cos(larange[0]) ) ){
 		err = NoIntersectionError{}
 		fmt.Println("T353: ", loin, lorange,";",lain, larange)
@@ -353,7 +356,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 		fmt.Println("T356: ", math.Cos(loin), math.Cos(lorange[0]), math.Cos(lorange[1]),";",math.Cos(lain), math.Cos(larange[0]),math.Cos(larange[1]) )
 
 		fmt.Println("T358:" , loin*180/math.Pi, " is between ", lorange[0]*180/math.Pi, " & ", lorange[1]*180/math.Pi)
-	}
+	}*/
 
 
 	// Tests whether intersection is between segment endpoints to within ~4cm
