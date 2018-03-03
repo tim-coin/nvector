@@ -337,7 +337,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	//fmt.Println("Dist: ",loin*180/math.Pi, ":",din1, din2)
 
 
-	/*
+	/* //THis is not needed as replaced by LOI check
 	lorange := []float64{math.Min(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon), math.Max(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon)} //the line of interest
 	larange := []float64{math.Min(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat), math.Max(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat)} //the line of interest
 
@@ -454,4 +454,22 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	fmt.Println("Result  is, ",result.ToLonLat().Lon*180/math.Pi, result.ToLonLat().Lat*180/math.Pi)
 	*/
 	return result2, err
+}
+
+
+//Find the graph which is mergable
+func Merger(nv1a, nv1b, nv2a, nv2b *NVector) ([][]float64) {
+	//var normalA, normalB, intersection *Vec3
+	//var err error
+
+	var  dab, dai, dbi float64
+	dab = nv1a.SphericalDistance(nv1b, 1.0)
+	dai = nv1a.SphericalDistance(nv2b, 1.0)
+	dbi = nv2b.SphericalDistance(nv1b, 1.0)
+	pt := nv1a
+	if math.Abs(dab-dai-dbi) > 1e-9 {
+		pt = nv1b
+	}
+	tri := [][]float64{{pt.ToLonLat().Lat, pt.ToLonLat().Lon},{nv2a.ToLonLat().Lat,nv2a.ToLonLat().Lon},{nv2b.ToLonLat().Lat,nv2b.ToLonLat().Lon} }
+	return tri
 }
