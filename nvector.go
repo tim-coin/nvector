@@ -415,7 +415,7 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	larange := []float64{math.Min(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat), math.Max(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat)} //the line of interest
 
 	//if( (math.Cos(loin) > math.Cos(lorange[1]) || math.Cos(loin) < math.Cos(lorange[0]) ) || (math.Cos(lain) > math.Cos(larange[1]) || math.Cos(lain) < math.Cos(larange[0]) ) ){
-	if( ((loin) >= (lorange[1]) || (loin) <= (lorange[0]) ) || ((lain) >= (larange[1]) || (lain) <= (larange[0]) ) ){
+	if( ((loin) > (lorange[1]) || (loin) < (lorange[0]) ) || ((lain) > (larange[1]) || (lain) < (larange[0]) ) ){
 
 		loin = in2.ToLonLat().Lon
 		lain = in2.ToLonLat().Lat
@@ -428,7 +428,7 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	//dab = nv2a.SphericalDistance(nv2b, 1.0)
 	dai = nv2a.SphericalDistance(&result, 1.0)
 	dbi = nv2b.SphericalDistance(&result, 1.0)
-
+	fmt.Println("T431: ", dai, dbi)
 	if dai*dbi == 0  {
 		//result = (nv2a+nv2b)/2
 		result = nv2a.Interpolate(nv2b, 0)
