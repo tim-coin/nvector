@@ -288,22 +288,29 @@ func Intersection(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 // NoIntersectionError is returned
 func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	//Add a delta if both points are same for Point of Line
-	delta := 1e-9
+
+	var normalA, normalB, intersection *Vec3
 	//fmt.Println(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon, -1*math.Pi, delta)
 	if(nv2a.ToLonLat().Lon == nv2b.ToLonLat().Lon && nv2a.ToLonLat().Lon == -1*math.Pi){
 		//Fixing singularity
+		/*
+		delta := 1e-9
 		_t , _ := NewLonLat((nv2a.ToLonLat().Lon - delta)*180/math.Pi, (nv2a.ToLonLat().Lat)*180/math.Pi)
 		_t1 := _t.ToNVector()
 		nv2a = &_t1
+		*/
 		//fmt.Println("Needs Delta", nv2a)
+		normalA = &nv1a.Vec3
+	}else{
+		normalA = cross(&nv1a.Vec3, &nv1b.Vec3)
 	}
 	//nv1a is the point
 	//nv1b is the pole
 	//nv2a and nv2b is the line with which intersection is sought
-	var normalA, normalB, intersection *Vec3
+
 	var err error
 
-	normalA = cross(&nv1a.Vec3, &nv1b.Vec3)
+
 	normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
 	intersection = cross(normalA, normalB)
 	intersection2 := Vec3{0,0,0}  //negative(intersection)
