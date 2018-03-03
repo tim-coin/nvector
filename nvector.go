@@ -420,30 +420,21 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	lain := in1.ToLonLat().Lat //Let's assume that 1st intersection is nearest to POI (point of interest)
 	fmt.Println("lon:::",in1.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lon*180/math.Pi)
 	result := in1
-	if(din2 < din1){
+	lorange := []float64{math.Min(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon), math.Max(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon)} //the line of interest
+	larange := []float64{math.Min(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat), math.Max(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat)} //the line of interest
+
+	if( (math.Cos(loin) > math.Cos(lorange[1]) || math.Cos(loin) < math.Cos(lorange[0]) ) || (math.Cos(lain) > math.Cos(larange[1]) || math.Cos(lain) < math.Cos(larange[0]) ) ){
+
 		loin = in2.ToLonLat().Lon
 		lain = in2.ToLonLat().Lat
 		result = in2
 	} //Now we have the nearest intersection point. Finally check if it is in range of POL(point of Line)
 	fmt.Println("Dist: ",nv1a.ToLonLat().Lon*180/math.Pi, din1, din2)
 
-	lorange := []float64{math.Min(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon), math.Max(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon)} //the line of interest
-	larange := []float64{math.Min(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat), math.Max(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat)} //the line of interest
 
-	//Check if it doesnt exist in range, generate error
-	//if( (loin > lorange[1] || loin < lorange[0] ) || (lain > larange[1] || lain < larange[0] ) ){
-	if( (math.Cos(loin) > math.Cos(lorange[1]) || math.Cos(loin) < math.Cos(lorange[0]) ) || (math.Cos(lain) > math.Cos(larange[1]) || math.Cos(lain) < math.Cos(larange[0]) ) ){
-		err = NoIntersectionError{}
-		fmt.Println("T437: ", loin, lorange,";",lain, larange)
-		fmt.Println("T438: ", math.Cos(loin), math.Cos(lorange[0]), math.Cos(lorange[1]),";",math.Cos(lain), math.Cos(larange[0]),math.Cos(larange[1]) )
-	}else{
-		fmt.Println("T440: ", math.Cos(loin), math.Cos(lorange[0]), math.Cos(lorange[1]),";",math.Cos(lain), math.Cos(larange[0]),math.Cos(larange[1]) )
-
-		fmt.Println("T442:" , loin*180/math.Pi, " is between ", lorange[0]*180/math.Pi, " & ", lorange[1]*180/math.Pi)
-	}
 
 
 	result2 := result.ToLonLat()
-	fmt.Println("Point  is,", nv1a,"; Lon: ", nv1a.ToLonLat().Lon*180/math.Pi)
+	fmt.Println("Point  is,", nv1a,"; Lon: ", nv1a.ToLonLat().Lon*180/math.Pi,"; Lat: ", nv1a.ToLonLat().Lat*180/math.Pi)
 	return result2, err
 }
