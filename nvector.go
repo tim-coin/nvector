@@ -427,6 +427,9 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 
 	result2 := result.ToLonLat()
 	//fmt.Println("Point  is,", nv1a,"; Lon: ", nv1a.ToLonLat().Lon*180/math.Pi,"; Lat: ", nv1a.ToLonLat().Lat*180/math.Pi)
-	fmt.Println("CG Point  is, ",nv1b.ToLonLat().Lon*180/math.Pi, nv1b.ToLonLat().Lat*180/math.Pi, result2)
+	fmt.Println("Point-1 is, ",nv1a.ToLonLat().Lon*180/math.Pi, nv1a.ToLonLat().Lat*180/math.Pi)
+	fmt.Println("CG Point  is, ",nv1b.ToLonLat().Lon*180/math.Pi, nv1b.ToLonLat().Lat*180/math.Pi)
+	fmt.Println("Point-3  is, ",nv2a.ToLonLat().Lon*180/math.Pi, nv2a.ToLonLat().Lat*180/math.Pi)
+	fmt.Println("Point-4  is, ",nv2b.ToLonLat().Lon*180/math.Pi, nv2b.ToLonLat().Lat*180/math.Pi)
 	return result2, err
 }
