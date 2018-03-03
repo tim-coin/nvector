@@ -327,7 +327,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	loin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
 	lain := in1.ToLonLat().Lat //Let's assume that 1st intersection is nearest to POI (point of interest)
 	fmt.Println("LOI:::",nv2a.ToLonLat().Lon*180/math.Pi,nv2a.ToLonLat().Lat*180/math.Pi,"|", nv2b.ToLonLat().Lon*180/math.Pi, nv2b.ToLonLat().Lat*180/math.Pi)
-	fmt.Println("lon:::",in1.ToLonLat().Lon*180/math.Pi,in1.ToLonLat().Lat*180/math.Pi,"|", in2.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lat*180/math.Pi)
+	fmt.Println("Intersects:::",in1.ToLonLat().Lon*180/math.Pi,in1.ToLonLat().Lat*180/math.Pi,"|", in2.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lat*180/math.Pi)
 	result := in1
 	if(din2 < din1){
 		loin = in2.ToLonLat().Lon
@@ -344,6 +344,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	fmt.Println( (math.Cos(loin) > math.Cos(lorange[1]) || math.Cos(loin) < math.Cos(lorange[0]) ) , (math.Cos(lain) > math.Cos(larange[1]) || math.Cos(lain) < math.Cos(larange[0]) ) )
 	fmt.Println( math.Cos(loin) > math.Cos(lorange[1]) , math.Cos(loin) < math.Cos(lorange[0])  , math.Cos(lain) > math.Cos(larange[1]) , math.Cos(lain) < math.Cos(larange[0])  )
 	fmt.Println( math.Cos(loin) ,">", math.Cos(lorange[1]) , math.Cos(loin) ,"<", math.Cos(lorange[0])  , math.Cos(lain) ,">", math.Cos(larange[1]) , math.Cos(lain) ,"<", math.Cos(larange[0])  )
+	fmt.Println( (loin)*180/math.Pi ,">", (lorange[1])*180/math.Pi , (loin)*180/math.Pi ,"<", (lorange[0])*180/math.Pi ,"|" , (lain)*180/math.Pi ,">", (larange[1])*180/math.Pi , (lain)*180/math.Pi ,"<", (larange[0])*180/math.Pi  )
 	if( (math.Cos(loin) > math.Cos(lorange[1]) || math.Cos(loin) < math.Cos(lorange[0]) ) || (math.Cos(lain) > math.Cos(larange[1]) || math.Cos(lain) < math.Cos(larange[0]) ) ){
 		err = NoIntersectionError{}
 		fmt.Println("T353: ", loin, lorange,";",lain, larange)
