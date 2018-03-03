@@ -381,7 +381,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	//Add a delta if both points are same for Point of Line
 	delta := 1e-9
-	fmt.Println("T384: Point-1 is, ", &nv2a.Vec3, &nv2b.Vec3[0],nv1a.ToLonLat().Lon*180/math.Pi, nv1a.ToLonLat().Lat*180/math.Pi)
+	fmt.Println("T384: Point-1 is, ", nv2a.Vec3, nv2b.Vec3[0],nv1a.ToLonLat().Lon*180/math.Pi, nv1a.ToLonLat().Lat*180/math.Pi)
 	if(nv2a.ToLonLat().Lon == nv2b.ToLonLat().Lon && nv2a.ToLonLat().Lon == -1*math.Pi){
 		//Fixing singularity
 		_t , _ := NewLonLat((nv2a.ToLonLat().Lon - delta)*180/math.Pi, (nv2a.ToLonLat().Lat)*180/math.Pi)
