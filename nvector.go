@@ -458,7 +458,7 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 
 
 //Find the graph which is mergable
-func Merger(nv1a, nv1b, nv2a, nv2b *NVector) ([][]float64) {
+func Merger(nv1a, nv1b, nv2a, nv2b *NVector) ([][]float64, error) {
 	//var normalA, normalB, intersection *Vec3
 	var err error
 
