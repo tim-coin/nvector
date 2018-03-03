@@ -458,7 +458,7 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 
 
 //Find the graph which is mergable
-func Merger(nv1a, nv1b, nv2a, nv2b *NVector) ([][]float64, error) {
+func Merger(nv1a, nv1b, nv2a, nv2b *NVector) ([]float64, error) {
 	//var normalA, normalB, intersection *Vec3
 	var err error
 
@@ -466,16 +466,16 @@ func Merger(nv1a, nv1b, nv2a, nv2b *NVector) ([][]float64, error) {
 	dab = nv1a.SphericalDistance(nv1b, 1.0)
 	dai = nv1a.SphericalDistance(nv2b, 1.0)
 	dbi = nv2b.SphericalDistance(nv1b, 1.0)
-	pt := nv1a
+	pt := nv2a // The Edge from common points
 	if math.Abs(dab-dai-dbi) > 1e-9 {
 
 		dai = nv1a.SphericalDistance(nv2a, 1.0)
 		dbi = nv2a.SphericalDistance(nv1b, 1.0)
-		pt = nv1b
+		pt = nv2b
 		if math.Abs(dab-dai-dbi) > 1e-9 {
 			err = NoIntersectionError{}
 		}
 	}
-	tri := [][]float64{{pt.ToLonLat().Lat*180/math.Pi, pt.ToLonLat().Lon*180/math.Pi},{nv2a.ToLonLat().Lat*180/math.Pi,nv2a.ToLonLat().Lon*180/math.Pi},{nv2b.ToLonLat().Lat*180/math.Pi,nv2b.ToLonLat().Lon*180/math.Pi} }
-	return tri, err
+	//tri := [][]float64{{pt.ToLonLat().Lat*180/math.Pi, pt.ToLonLat().Lon*180/math.Pi},{nv2a.ToLonLat().Lat*180/math.Pi,nv2a.ToLonLat().Lon*180/math.Pi},{nv2b.ToLonLat().Lat*180/math.Pi,nv2b.ToLonLat().Lon*180/math.Pi} }
+	return []float64{pt.ToLonLat().Lat*180/math.Pi, pt.ToLonLat().Lon*180/math.Pi} , err
 }
