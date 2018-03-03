@@ -476,6 +476,6 @@ func Merger(nv1a, nv1b, nv2a, nv2b *NVector) ([][]float64, error) {
 			err = NoIntersectionError{}
 		}
 	}
-	tri := [][]float64{{pt.ToLonLat().Lat, pt.ToLonLat().Lon},{nv2a.ToLonLat().Lat,nv2a.ToLonLat().Lon},{nv2b.ToLonLat().Lat,nv2b.ToLonLat().Lon} }
+	tri := [][]float64{{pt.ToLonLat().Lat*180/math.Pi, pt.ToLonLat().Lon*180/math.Pi},{nv2a.ToLonLat().Lat*180/math.Pi,nv2a.ToLonLat().Lon*180/math.Pi},{nv2b.ToLonLat().Lat*180/math.Pi,nv2b.ToLonLat().Lon*180/math.Pi} }
 	return tri, err
 }
