@@ -342,6 +342,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	//if( (loin > lorange[1] || loin < lorange[0] ) || (lain > larange[1] || lain < larange[0] ) ){
 	fmt.Println( (math.Cos(loin) > math.Cos(lorange[1]) || math.Cos(loin) < math.Cos(lorange[0]) ) , (math.Cos(lain) > math.Cos(larange[1]) || math.Cos(lain) < math.Cos(larange[0]) ) )
 	fmt.Println( math.Cos(loin) > math.Cos(lorange[1]) , math.Cos(loin) < math.Cos(lorange[0])  , math.Cos(lain) > math.Cos(larange[1]) , math.Cos(lain) < math.Cos(larange[0])  )
+	fmt.Println( math.Cos(loin) ,">", math.Cos(lorange[1]) , math.Cos(loin) ,"<", math.Cos(lorange[0])  , math.Cos(lain) ,">", math.Cos(larange[1]) , math.Cos(lain) ,"<", math.Cos(larange[0])  )
 	if( (math.Cos(loin) > math.Cos(lorange[1]) || math.Cos(loin) < math.Cos(lorange[0]) ) || (math.Cos(lain) > math.Cos(larange[1]) || math.Cos(lain) < math.Cos(larange[0]) ) ){
 		err = NoIntersectionError{}
 		fmt.Println("T353: ", loin, lorange,";",lain, larange)
