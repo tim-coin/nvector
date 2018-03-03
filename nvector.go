@@ -405,20 +405,11 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 
 	in1 := NVector{*intersection}
 	in2 := NVector{intersection2}
-	/*
-	fmt.Println("322: ", in1, in2)
-	fmt.Println("326: ", intersection, intersection2)
-	fmt.Println(":", intersection[0],1*intersection2[0])
-	fmt.Println(":", intersection[1],intersection2[1])
-	fmt.Println(":", intersection[2],intersection2[2])
-	*/
-
-	//din1 :=  nv1a.SphericalDistance(&in1, 1.0) //Distance of intersection 1
-	//din2 :=  nv1a.SphericalDistance(&in2, 1.0) //Distance of intersection 2
 
 	loin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
 	lain := in1.ToLonLat().Lat //Let's assume that 1st intersection is nearest to POI (point of interest)
-	fmt.Println("lon:::",in1.ToLonLat().Lon*180/math.Pi, in1.ToLonLat().Lat*180/math.Pi)
+	fmt.Println("lonlat of int1:::",in1.ToLonLat().Lon*180/math.Pi, in1.ToLonLat().Lat*180/math.Pi)
+	fmt.Println("lonlat of int2:::",in2.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lat*180/math.Pi)
 	result := in1
 	lorange := []float64{math.Min(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon), math.Max(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon)} //the line of interest
 	larange := []float64{math.Min(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat), math.Max(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat)} //the line of interest
@@ -430,9 +421,7 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 		lain = in2.ToLonLat().Lat
 		result = in2
 	} //Now we have the nearest intersection point. Finally check if it is in range of POL(point of Line)
-	//fmt.Println("Dist: ",nv1a.ToLonLat().Lon*180/math.Pi, din1, din2)
-	//fmt.Println("lon2:::",in2.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lat*180/math.Pi, (math.Cos(loin) > math.Cos(lorange[1]) || math.Cos(loin) < math.Cos(lorange[0]) ), (math.Cos(lain) > math.Cos(larange[1]) || math.Cos(lain) < math.Cos(larange[0]) ) )
-	//fmt.Println("lon2-Comp:::",math.Cos(loin) ,">", math.Cos(lorange[1]),"||",  math.Cos(loin) ,"<" , math.Cos(lorange[0]) ,"," , math.Cos(lain),">" , math.Cos(larange[1]) ,"||", math.Cos(lain) ,"<" , math.Cos(larange[0])  )
+
 	fmt.Println("Degree: Lo:", (loin*180/math.Pi) ,"; LoMax: ", (lorange[1]*180/math.Pi) ,"; LoMin: ", (lorange[0]*180/math.Pi) , ", La: ", (lain*180/math.Pi) ,"; LaMax: ", (larange[1]*180/math.Pi) ,"; LaMin: ", (larange[0]*180/math.Pi) )
 
 
