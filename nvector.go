@@ -413,8 +413,8 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	fmt.Println(":", intersection[2],intersection2[2])
 	*/
 
-	din1 :=  nv1a.SphericalDistance(&in1, 1.0) //Distance of intersection 1
-	din2 :=  nv1a.SphericalDistance(&in2, 1.0) //Distance of intersection 2
+	//din1 :=  nv1a.SphericalDistance(&in1, 1.0) //Distance of intersection 1
+	//din2 :=  nv1a.SphericalDistance(&in2, 1.0) //Distance of intersection 2
 
 	loin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
 	lain := in1.ToLonLat().Lat //Let's assume that 1st intersection is nearest to POI (point of interest)
@@ -429,7 +429,7 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 		lain = in2.ToLonLat().Lat
 		result = in2
 	} //Now we have the nearest intersection point. Finally check if it is in range of POL(point of Line)
-	fmt.Println("Dist: ",nv1a.ToLonLat().Lon*180/math.Pi, din1, din2)
+	//fmt.Println("Dist: ",nv1a.ToLonLat().Lon*180/math.Pi, din1, din2)
 
 
 
