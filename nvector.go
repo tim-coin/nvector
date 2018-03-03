@@ -431,8 +431,8 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 		result = in2
 	} //Now we have the nearest intersection point. Finally check if it is in range of POL(point of Line)
 	//fmt.Println("Dist: ",nv1a.ToLonLat().Lon*180/math.Pi, din1, din2)
-	fmt.Println("lon2:::",in2.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lat*180/math.Pi, (math.Cos(loin) > math.Cos(lorange[1]) || math.Cos(loin) < math.Cos(lorange[0]) ), (math.Cos(lain) > math.Cos(larange[1]) || math.Cos(lain) < math.Cos(larange[0]) ) )
-	fmt.Println("lon2-Comp:::",math.Cos(loin) ,">", math.Cos(lorange[1]),"||",  math.Cos(loin) ,"<" , math.Cos(lorange[0]) ,"," , math.Cos(lain),">" , math.Cos(larange[1]) ,"||", math.Cos(lain) ,"<" , math.Cos(larange[0])  )
+	//fmt.Println("lon2:::",in2.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lat*180/math.Pi, (math.Cos(loin) > math.Cos(lorange[1]) || math.Cos(loin) < math.Cos(lorange[0]) ), (math.Cos(lain) > math.Cos(larange[1]) || math.Cos(lain) < math.Cos(larange[0]) ) )
+	//fmt.Println("lon2-Comp:::",math.Cos(loin) ,">", math.Cos(lorange[1]),"||",  math.Cos(loin) ,"<" , math.Cos(lorange[0]) ,"," , math.Cos(lain),">" , math.Cos(larange[1]) ,"||", math.Cos(lain) ,"<" , math.Cos(larange[0])  )
 	fmt.Println("Degree: ", (loin) ,">", (lorange[1]) ,"||", (loin) ,"<", (lorange[0]) , ",", (lain) ,">", (larange[1]) ,"||", (lain), "<", (larange[0]) )
 
 
