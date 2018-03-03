@@ -422,6 +422,18 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 		result = in2
 	} //Now we have the nearest intersection point. Finally check if it is in range of POL(point of Line)
 
+	//Pole Problem: If the LOI is pole to meridian, for hemisphere triangles, it will intersect at equator at edes.
+	//Calculate midpoint of LOI, That's it
+	var  dai, dbi float64
+	//dab = nv2a.SphericalDistance(nv2b, 1.0)
+	dai = nv2a.SphericalDistance(&result, 1.0)
+	dbi = nv2b.SphericalDistance(&result, 1.0)
+
+	if dai*dbi == 0  {
+		//result = (nv2a+nv2b)/2
+		result = nv2a.Interpolate(nv2b, 0)
+	}
+
 	fmt.Println("Degree: Lo:", (loin*180/math.Pi) ,"; LoMax: ", (lorange[1]*180/math.Pi) ,"; LoMin: ", (lorange[0]*180/math.Pi) , ", La: ", (lain*180/math.Pi) ,"; LaMax: ", (larange[1]*180/math.Pi) ,"; LaMin: ", (larange[0]*180/math.Pi) )
 
 
