@@ -381,7 +381,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	//Add a delta if both points are same for Point of Line
 	delta := 1e-9
-	fmt.Println("T384: Point-1 is, ", nv2a, nv2b,nv1a.ToLonLat().Lon*180/math.Pi, nv1a.ToLonLat().Lat*180/math.Pi)
+	fmt.Println("T384: Point-1 is, ", &nv2a.Vec3, &nv2b.Vec3[0],nv1a.ToLonLat().Lon*180/math.Pi, nv1a.ToLonLat().Lat*180/math.Pi)
 	if(nv2a.ToLonLat().Lon == nv2b.ToLonLat().Lon && nv2a.ToLonLat().Lon == -1*math.Pi){
 		//Fixing singularity
 		_t , _ := NewLonLat((nv2a.ToLonLat().Lon - delta)*180/math.Pi, (nv2a.ToLonLat().Lat)*180/math.Pi)
@@ -429,10 +429,10 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	dai = nv2a.SphericalDistance(&result, 1.0)
 	dbi = nv2b.SphericalDistance(&result, 1.0)
 	fmt.Println("T431: ", dai, dbi)
-	if dai*dbi == 0  {
+	//if dai*dbi == 0  {
 		//result = (nv2a+nv2b)/2
-		result = nv2a.Interpolate(nv2b, 0)
-	}
+		//result = NVector{(&nv2a.Vec3[0]+&nv2b.Vec3[0])/2,(&nv2a.Vec3[1]+&nv2b.Vec3[1])/2,(&nv2a.Vec3[2]+&nv2b.Vec3[2])/2}
+	//}
 
 	fmt.Println("Degree: Lo:", (loin*180/math.Pi) ,"; LoMax: ", (lorange[1]*180/math.Pi) ,"; LoMin: ", (lorange[0]*180/math.Pi) , ", La: ", (lain*180/math.Pi) ,"; LaMax: ", (larange[1]*180/math.Pi) ,"; LaMin: ", (larange[0]*180/math.Pi) )
 
