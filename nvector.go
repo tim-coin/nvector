@@ -431,7 +431,7 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	fmt.Println("T431: ", dai, dbi)
 	if dai*dbi == 0  {
 		//result = (nv2a+nv2b)/2
-		result = NVector{(nv2a.Vec3[0]+nv2b.Vec3[0])/2,(nv2a.Vec3[1]+nv2b.Vec3[1])/2,(nv2a.Vec3[2]+nv2b.Vec3[2])/2}
+		result = NVector{Vec3{(nv2a.Vec3[0]+nv2b.Vec3[0])/2,(nv2a.Vec3[1]+nv2b.Vec3[1])/2,(nv2a.Vec3[2]+nv2b.Vec3[2])/2}}
 	}
 
 	fmt.Println("Degree: Lo:", (loin*180/math.Pi) ,"; LoMax: ", (lorange[1]*180/math.Pi) ,"; LoMin: ", (lorange[0]*180/math.Pi) , ", La: ", (lain*180/math.Pi) ,"; LaMax: ", (larange[1]*180/math.Pi) ,"; LaMin: ", (larange[0]*180/math.Pi) )
