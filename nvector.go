@@ -293,12 +293,12 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	//fmt.Println(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon, -1*math.Pi, delta)
 	if(nv2a.ToLonLat().Lon == nv2b.ToLonLat().Lon && nv2a.ToLonLat().Lon == -1*math.Pi){
 		//Fixing singularity
-
+		/*
 		delta := 1e-9
 		_t , _ := NewLonLat((nv2a.ToLonLat().Lon - delta)*180/math.Pi, (nv2a.ToLonLat().Lat)*180/math.Pi)
 		_t1 := _t.ToNVector()
 		nv2a = &_t1
-
+		*/
 		//fmt.Println("Needs Delta", nv2a)
 		//normalA = &nv1a.Vec3
 	}//else{
@@ -384,7 +384,8 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	if math.Abs(dab-dai-dbi) > 1e-9 {
 		err = NoIntersectionError{}
 	}
-	
+
+
 
 	fmt.Println("Int Longitude is,", result.ToLonLat().Lon*180/math.Pi, err)
 	return result, err
