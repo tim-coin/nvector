@@ -464,8 +464,9 @@ func TestIntersection5(t *testing.T){
 	graphs:= map[string][][]float64{}
 	graphs["5ea5014"]= [][]float64{{90,0},{0,180},{0,-180} }
 	graphs["1e50fe0"]= [][]float64{{0,180},{-45.00000000000001,-180}, {0,-180}}
-	graphs["6262621"]=[][]float64{{0,180},{-45.00000000000001,-180},{-90,0} }
-
+	graphs["6262621"]= [][]float64{{0,180},{-45.00000000000001,-180},{-90,0} }
+	graphs["64ecd79"]= [][]float64{{90,0},{0,-155.77267315364767},{0,180}}
+	graphs["8cbfa98"]= [][]float64{{90,0},{0,-155.77267315364767},{0,-180}}
 	csvFile, err := os.Open("./capital2")
 
   if err != nil {
@@ -489,12 +490,12 @@ func TestIntersection5(t *testing.T){
 		 //fmt.Println("T488: ", oet(_lon[0], _lat[0], graphs["6262621"] ))
    }
 	 //fmt.Println("T489: ", oet1(_lon[0], _lat[0], graphs["5ea5014"] )) //Shd be false
-	 fmt.Println("T488: ", oet1(_lon[0], _lat[0], graphs["1e50fe0"] ))
+	 fmt.Println("T488: ", "8cbfa98=>",oet1(_lon[1], _lat[1], graphs["8cbfa98"] ), "64ecd79=>",oet1(_lon[1], _lat[1], graphs["64ecd79"] ))
 }
 
 
 func oet1(la float64,lo float64,tri [][]float64) bool{
-	pole := []float64{90,0}
+	pole := []float64{-90,0}
   ll1, _ := NewLonLat(lo, la)
   ll2, _ := NewLonLat(pole[1], pole[0])
   nv1 := ll1.ToNVector()
@@ -511,7 +512,13 @@ func oet1(la float64,lo float64,tri [][]float64) bool{
   	nv3 := ll3.ToNVector()
   	nv4 := ll4.ToNVector()
     fmt.Println("T97: ", p,"=>",tri[nxt])
-    _i, err := Intersection2(&nv1, &nv2, &nv3, &nv4)
+		_i := NVector{}
+		var err  error
+		if p[1] < tri[ nxt ][1] {
+    	_i, err = Intersection2(&nv1, &nv2, &nv3, &nv4)
+		}else{
+			_i, err = Intersection2(&nv1, &nv2, &nv4, &nv3)
+		}
   	if err == nil {
   		//fmt.Println("T92:Err ", err)
   	//}else{

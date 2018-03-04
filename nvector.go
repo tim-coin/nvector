@@ -203,7 +203,10 @@ func (nv *NVector) SphericalDistance2(nv2 *NVector, R float64) float64 {
 		dot(&nv.Vec3, &nv2.Vec3))
 
 	if a_ab < 0{
+		fmt.Println("T206: ", a_ab)
 		a_ab = 2*math.Pi + a_ab
+		fmt.Println("T208: ",2*math.Pi , a_ab)
+
 	}
 	s_ab := a_ab*R
 	return s_ab
