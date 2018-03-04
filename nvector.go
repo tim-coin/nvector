@@ -300,7 +300,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 		nv2a = &_t1
 		*/
 		//fmt.Println("Needs Delta", nv2a)
-		normalB = &nv2a.Vec3
+		normalB = NVector(Vec3{0,0,0})
 	}else{
 	normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
 	}
