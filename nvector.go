@@ -376,7 +376,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 		err = NoIntersectionError{}
 	}
 
-	/* This is not needed, as replaced by longitude test
+	//This is  needed, as  longitude test is not correct
 	dab = nv2a.SphericalDistance(nv2b, 1.0)
 	dai = nv2a.SphericalDistance(&result, 1.0)
 	dbi = nv2b.SphericalDistance(&result, 1.0)
@@ -384,7 +384,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	if math.Abs(dab-dai-dbi) > 1e-9 {
 		err = NoIntersectionError{}
 	}
-	*/
+	
 
 	fmt.Println("Int Longitude is,", result.ToLonLat().Lon*180/math.Pi, err)
 	return result, err
