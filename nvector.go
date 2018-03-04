@@ -434,12 +434,12 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	//fmt.Println(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon, -1*math.Pi, delta)
 	if(nv2a.ToLonLat().Lon == nv2b.ToLonLat().Lon && nv2a.ToLonLat().Lat == nv2b.ToLonLat().Lat  && nv2a.ToLonLat().Lon == -1*math.Pi){
 		//Fixing singularity
-		/*
+
 		delta := 1e-9
 		_t , _ := NewLonLat((nv2a.ToLonLat().Lon - delta)*180/math.Pi, (nv2a.ToLonLat().Lat)*180/math.Pi)
 		_t1 := _t.ToNVector()
 		nv2a = &_t1
-		*/
+		
 		//fmt.Println("Needs Delta", nv2a)
 		//Since it will happen on equator only(for geoBoss), choose second point as prime meridian on equator(0,0)
 		//nv0ll,_ := NewLonLat(0, 0)
@@ -463,29 +463,31 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	in1 := NVector{*intersection}
 	in2 := NVector{intersection2}
 
-	loin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
-	lain := in1.ToLonLat().Lat //Let's assume that 1st intersection is nearest to POI (point of interest)
+	//loin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
+	//lain := in1.ToLonLat().Lat //Let's assume that 1st intersection is nearest to POI (point of interest)
 	fmt.Println("T468: ", normalA, normalB)
 	fmt.Println("lonlat of int1:::",in1.ToLonLat().Lon*180/math.Pi, in1.ToLonLat().Lat*180/math.Pi)
 	fmt.Println("lonlat of int2:::",in2.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lat*180/math.Pi)
 	result := in1
-	lorange := []float64{math.Min(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon), math.Max(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon)} //the line of interest
-	larange := []float64{math.Min(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat), math.Max(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat)} //the line of interest
+	//lorange := []float64{math.Min(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon), math.Max(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon)} //the line of interest
+	//larange := []float64{math.Min(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat), math.Max(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat)} //the line of interest
+	var  dab, dai, dbi float64
 
+		dab = nv2a.SphericalDistance2(nv2b, 1.0)
+		dai = nv2a.SphericalDistance2(&result, 1.0)
+		dbi = result.SphericalDistance2(nv2b, 1.0)
+	fmt.Println("T479: ", dab, dai, dbi)
 	//if( (math.Cos(loin) > math.Cos(lorange[1]) || math.Cos(loin) < math.Cos(lorange[0]) ) || (math.Cos(lain) > math.Cos(larange[1]) || math.Cos(lain) < math.Cos(larange[0]) ) ){
-	if( ((loin) > (lorange[1]) || (loin) < (lorange[0]) ) || ((lain) > (larange[1]) || (lain) < (larange[0]) ) ){
-
-		loin = in2.ToLonLat().Lon
-		lain = in2.ToLonLat().Lat
+	//if( ((loin) > (lorange[1]) || (loin) < (lorange[0]) ) || ((lain) > (larange[1]) || (lain) < (larange[0]) ) ){
+	if math.Abs(dab-dai-dbi) > 1e-9 && dab > 1e-9  && dai*dbi > 0  {
+		//loin = in2.ToLonLat().Lon
+		//lain = in2.ToLonLat().Lat
 		result = in2
 	} //Now we have the nearest intersection point. Finally check if it is in range of POL(point of Line)
 
 	//Pole Problem: If the LOI is pole to meridian, for hemisphere triangles, it will intersect at equator at edes.
 	//Calculate midpoint of LOI, That's it
-	var  dai, dbi float64
-	//dab = nv2a.SphericalDistance(nv2b, 1.0)
-	dai = nv2a.SphericalDistance(&result, 1.0)
-	dbi = nv2b.SphericalDistance(&result, 1.0)
+
 	//fmt.Println("T431: ", dai, dbi)
 	if dai*dbi == 0  {
 		//result = (nv2a+nv2b)/2
