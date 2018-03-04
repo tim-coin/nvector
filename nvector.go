@@ -333,8 +333,8 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 
 	//loin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
 	//lain := in1.ToLonLat().Lat //Let's assume that 1st intersection is nearest to POI (point of interest)
-	//fmt.Println("LOI:::",nv2a.ToLonLat().Lon*180/math.Pi,nv2a.ToLonLat().Lat*180/math.Pi,"|", nv2b.ToLonLat().Lon*180/math.Pi, nv2b.ToLonLat().Lat*180/math.Pi)
-	//fmt.Println("Intersects:::",in1.ToLonLat().Lon*180/math.Pi,in1.ToLonLat().Lat*180/math.Pi,"|", in2.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lat*180/math.Pi)
+	fmt.Println("LOI:::",nv2a.ToLonLat().Lon*180/math.Pi,nv2a.ToLonLat().Lat*180/math.Pi,"|", nv2b.ToLonLat().Lon*180/math.Pi, nv2b.ToLonLat().Lat*180/math.Pi)
+	fmt.Println("Intersects:::",in1.ToLonLat().Lon*180/math.Pi,in1.ToLonLat().Lat*180/math.Pi,"|", in2.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lat*180/math.Pi)
 	result := in1
 	if(din2 < din1){
 		//loin = in2.ToLonLat().Lon
