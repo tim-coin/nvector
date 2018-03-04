@@ -300,7 +300,10 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 		nv2a = &_t1
 		*/
 		//fmt.Println("Needs Delta", nv2a)
-		normalB = NVector(Vec3{0,0,0})
+		//Since it will happen on equator only(for geoBoss), choose second point as prime meridian on equator(0,0)
+		nv0ll,_ := NewLonLat(0, 0)
+		nv0 := nv0ll.ToNVector()
+		normalB = cross(&nv0.Vec3, &nv2a.Vec3) //&nv2a.Vec3
 	}else{
 	normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
 	}
