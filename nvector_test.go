@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"math"
 	"testing"
+	"os"
+	"encoding/csv"
+	"strconv"
 )
 
 func isclose(a, b float64, places int32) bool {
@@ -387,7 +390,7 @@ func TestIntersection2(t *testing.T) {
 
 
 func TestIntersection3(t *testing.T) {
-	fmt.Println("-------------------------------------------")
+	fmt.Println("-----------------3--------------------------")
 	// No intersection
 	ll1, _ := NewLonLat(30, 20)
 	ll2, _ := NewLonLat(0, -90)
@@ -423,7 +426,7 @@ func TestIntersection3(t *testing.T) {
 
 
 func TestIntersection4(t *testing.T) {
-	fmt.Println("-------------------------------------------")
+	fmt.Println("--------------4-----------------------------")
 	ll1, _ := NewLonLat(16.367, 48.2)
 	ll2, _ := NewLonLat(0, -90)
 	//ll1, _ := NewLonLat(115.4010439,-32.0376666 )
@@ -454,4 +457,70 @@ func TestIntersection4(t *testing.T) {
 
 
 	fmt.Println("T452: ",p, ll1.Lon, err)
+}
+
+func TestIntersection5(t *testing.T){
+	fmt.Println("--------------5-----------------------------")
+	graphs:= map[string][][]float64{}
+	graphs["5ea5014"]= [][]float64{{90,0},{0,180},{0,-180} }
+	graphs["1e50fe0"]= [][]float64{{0,180},{-45.00000000000001,-180}, {0,-180}}
+	graphs["6262621"]=[][]float64{{0,180},{-45.00000000000001,-180},{-90,0} }
+
+	csvFile, err := os.Open("./capital2")
+
+  if err != nil {
+         fmt.Println(err)
+  }
+
+   defer csvFile.Close()
+   reader := csv.NewReader(csvFile)
+   reader.Comma = ',' // Use tab-delimited instead of comma <---- here!
+   reader.FieldsPerRecord = -1
+   nodeData, err := reader.ReadAll()
+
+	 _lat := []float64{}
+   _lon := []float64{}
+
+   for _,node := range nodeData{
+     n2,_ := strconv.ParseFloat(node[2],64)
+     n3,_ := strconv.ParseFloat(node[3],64)
+     _lat = append(_lat,n2)
+     _lon = append(_lon, n3)
+		 //fmt.Println("T488: ", oet(_lon[0], _lat[0], graphs["6262621"] ))
+   }
+	 //fmt.Println("T489: ", oet1(_lon[0], _lat[0], graphs["5ea5014"] )) //Shd be false
+	 fmt.Println("T488: ", oet1(_lon[0], _lat[0], graphs["1e50fe0"] ))
+}
+
+
+func oet1(la float64,lo float64,tri [][]float64) bool{
+	pole := []float64{90,0}
+  ll1, _ := NewLonLat(lo, la)
+  ll2, _ := NewLonLat(pole[1], pole[0])
+  nv1 := ll1.ToNVector()
+  nv2 := ll2.ToNVector()
+  counter :=  0
+  //Now find about how many lines intersect by connecting la/lo with pole
+  for i,p := range tri {
+    nxt := i+1 //Draw line upto next index
+    if i == 2{
+      nxt = 0
+    }
+  	ll3, _ := NewLonLat(p[1], p[0])
+  	ll4, _ := NewLonLat(tri[ nxt ][1], tri[ nxt ][0])
+  	nv3 := ll3.ToNVector()
+  	nv4 := ll4.ToNVector()
+    fmt.Println("T97: ", p,"=>",tri[nxt])
+    _i, err := Intersection2(&nv1, &nv2, &nv3, &nv4)
+  	if err == nil {
+  		//fmt.Println("T92:Err ", err)
+  	//}else{
+    	//ll_intersection := nv_intersection.ToLonLat()
+      counter += 1
+      fmt.Println("T101: ", _i, p[1],p[0] ,"=>",tri[ nxt ][1], tri[ nxt ][0] )
+    }
+
+  }
+  fmt.Println("T105: ", counter)
+  return (counter%2 != 0)
 }

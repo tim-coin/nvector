@@ -399,7 +399,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	dai = nv1a.SphericalDistance(&result, 1.0)
 	dbi = nv1b.SphericalDistance(&result, 1.0)
 	fmt.Println("T401: ", dab, dai,dbi, (dab-dai-dbi))
-	if math.Abs(dab-dai-dbi) > 1e-9 {
+	if math.Abs(dab-dai-dbi) > 1e-9  && dai*dbi > 0 {
 		fmt.Println("Point Pole Mismatch")
 		err = NoIntersectionError{}
 	}
@@ -409,7 +409,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	dai = nv2a.SphericalDistance2(&result, 1.0)
 	dbi = result.SphericalDistance2(nv2b, 1.0)
 	fmt.Println("T411: ", dab, dai,dbi, (dab-dai-dbi))
-	if math.Abs(dab-dai-dbi) > 1e-9 && dab > 1e-9 { //If distance is zero between LOI points, means whole equator
+	if math.Abs(dab-dai-dbi) > 1e-9 && dab > 1e-9  && dai*dbi > 0  { //If distance is zero between LOI points, means whole equator
 		err = NoIntersectionError{}
 		fmt.Println("LOI Mismatch")
 
