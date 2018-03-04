@@ -381,7 +381,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	dai = nv2a.SphericalDistance(&result, 1.0)
 	dbi = nv2b.SphericalDistance(&result, 1.0)
 	fmt.Println("T367: ", dab, dai,dbi, (dab-dai-dbi))
-	if math.Abs(dab-dai-dbi) > 1e-9 {
+	if math.Abs(dab-dai-dbi) > 1e-9 && dab > 1e-9 {
 		err = NoIntersectionError{}
 	}
 
