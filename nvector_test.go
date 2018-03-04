@@ -420,3 +420,38 @@ func TestIntersection3(t *testing.T) {
 		t.Fail()
 	}*/
 }
+
+
+func TestIntersection4(t *testing.T) {
+	fmt.Println("-------------------------------------------")
+	ll1, _ := NewLonLat(16.367, 48.2)
+	ll2, _ := NewLonLat(0, -90)
+	//ll1, _ := NewLonLat(115.4010439,-32.0376666 )
+	//ll2, _ := NewLonLat(0, 90)
+
+	ll3, _ := NewLonLat(-179, 0)
+	ll4, _ := NewLonLat(180, 0)
+
+	nv1 := ll1.ToNVector()
+	nv2 := ll2.ToNVector()
+	nv3 := ll3.ToNVector()
+	nv4 := ll4.ToNVector()
+	pole := &Vec3{1, 1, 1} //Use this to find direction of cross product
+	//Assign the sign
+
+	fmt.Println("S1: ", nv3.SphericalDistance2(&nv4,1), cross(&nv3.Vec3,&nv4.Vec3), Sign(dot(pole,cross(&nv3.Vec3,&nv4.Vec3) )) ,";", cross(&nv3.Vec3,&nv4.Vec3).Magnitude(), dot(&nv3.Vec3,&nv4.Vec3))
+	//fmt.Println("S1: ", nv4.SphericalDistance2(&nv3,1), cross(&nv4.Vec3,&nv3.Vec3),dot(pole,cross(&nv4.Vec3,&nv3.Vec3) ) ,";", cross(&nv4.Vec3,&nv3.Vec3).Magnitude(), dot(&nv4.Vec3,&nv3.Vec3))
+	fmt.Println("T440: ", nv1, nv2, nv3, nv4)
+
+	p, err := Intersection2(&nv1, &nv2, &nv3, &nv4)
+
+
+	ll_intersection := p.ToLonLat()
+
+	fmt.Println("error", err)
+	fmt.Println("intersection lon", ll_intersection.Lon*180/math.Pi)
+	fmt.Println("intersection lat", ll_intersection.Lat*180/math.Pi)
+
+
+	fmt.Println("T452: ",p, ll1.Lon, err)
+}

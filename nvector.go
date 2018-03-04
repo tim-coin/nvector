@@ -70,6 +70,13 @@ func cross(u, v *Vec3) *Vec3 {
 	return &Vec3{u[1]*v[2] - u[2]*v[1], u[2]*v[0] - u[0]*v[2], u[0]*v[1] - u[1]*v[0]}
 }
 
+func Sign (n float64) float64{
+	if n == 0{
+		return 1
+	}
+	return n/math.Abs(n)
+}
+
 func dot(u, v *Vec3) float64 {
 	return u[0]*v[0] + u[1]*v[1] + u[2]*v[2]
 }
@@ -187,6 +194,21 @@ func (nv *NVector) SphericalDistance(nv2 *NVector, R float64) float64 {
 	return s_ab
 }
 
+// SphericalDistance2 returns the distance from another NVector on a sphere with
+// radius *R* based on direction
+
+func (nv *NVector) SphericalDistance2(nv2 *NVector, R float64) float64 {
+	pole := &Vec3{1, 1, 1} //Use this to find direction of cross product
+	a_ab := math.Atan2(cross(&nv.Vec3, &nv2.Vec3).Magnitude()*(Sign(dot(pole,cross(&nv.Vec3,&nv2.Vec3) )) ),
+		dot(&nv.Vec3, &nv2.Vec3))
+
+	if a_ab < 0{
+		a_ab = 2*math.Pi + a_ab
+	}
+	s_ab := a_ab*R
+	return s_ab
+}
+
 // Azimuth returns the azimuth and back azimuth from one NVector to another
 // along an ellipse
 func (nv *NVector) Azimuth(nv2 *NVector, ellps *Ellipsoid) float64 {
@@ -301,9 +323,11 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 		*/
 		//fmt.Println("Needs Delta", nv2a)
 		//Since it will happen on equator only(for geoBoss), choose second point as prime meridian on equator(0,0)
-		nv0ll,_ := NewLonLat(0, 0)
-		nv0 := nv0ll.ToNVector()
-		normalB = cross(&nv0.Vec3, &nv2a.Vec3) //&nv2a.Vec3
+		//nv0ll,_ := NewLonLat(0, 0)
+		//nv0 := nv0ll.ToNVector()
+		//normalB = cross(&nv0.Vec3, &nv2a.Vec3) //&nv2a.Vec3
+		//Method 3 : Equator
+		normalB = &Vec3{0,0,0}
 	}else{
 	normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
 	}
@@ -344,7 +368,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 		//lain = in2.ToLonLat().Lat
 		result = in2
 	} //Now we have the nearest intersection point. Finally check if it is in range of POL(point of Line)
-	fmt.Println("Dist: ",result, ":",din1, din2)
+	fmt.Println("Dist: ",result.ToLonLat().Lon*180/math.Pi, result.ToLonLat().Lat*180/math.Pi, ":",din1, din2)
 
 
 	/* //THis is not needed as replaced by LOI check
@@ -374,18 +398,21 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	dab = nv1a.SphericalDistance(nv1b, 1.0)
 	dai = nv1a.SphericalDistance(&result, 1.0)
 	dbi = nv1b.SphericalDistance(&result, 1.0)
-	fmt.Println("T359: ", dab, dai,dbi, (dab-dai-dbi))
+	fmt.Println("T401: ", dab, dai,dbi, (dab-dai-dbi))
 	if math.Abs(dab-dai-dbi) > 1e-9 {
+		fmt.Println("Point Pole Mismatch")
 		err = NoIntersectionError{}
 	}
 
 	//This is  needed, as  longitude test is not correct
-	dab = nv2a.SphericalDistance(nv2b, 1.0)
-	dai = nv2a.SphericalDistance(&result, 1.0)
-	dbi = nv2b.SphericalDistance(&result, 1.0)
-	fmt.Println("T367: ", dab, dai,dbi, (dab-dai-dbi))
+	dab = nv2a.SphericalDistance2(nv2b, 1.0)
+	dai = nv2a.SphericalDistance2(&result, 1.0)
+	dbi = result.SphericalDistance2(nv2b, 1.0)
+	fmt.Println("T411: ", dab, dai,dbi, (dab-dai-dbi))
 	if math.Abs(dab-dai-dbi) > 1e-9 && dab > 1e-9 { //If distance is zero between LOI points, means whole equator
 		err = NoIntersectionError{}
+		fmt.Println("LOI Mismatch")
+
 	}
 
 
