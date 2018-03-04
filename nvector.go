@@ -293,17 +293,17 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	//fmt.Println(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon, -1*math.Pi, delta)
 	if(nv2a.ToLonLat().Lon == nv2b.ToLonLat().Lon && nv2a.ToLonLat().Lon == -1*math.Pi){
 		//Fixing singularity
-		/*
+		// *
 		delta := 1e-9
 		_t , _ := NewLonLat((nv2a.ToLonLat().Lon - delta)*180/math.Pi, (nv2a.ToLonLat().Lat)*180/math.Pi)
 		_t1 := _t.ToNVector()
 		nv2a = &_t1
-		*/
+		//* /
 		//fmt.Println("Needs Delta", nv2a)
-		normalB = &nv2a.Vec3
-	}else{
-	normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
-	}
+		//normalB = &nv2a.Vec3
+	}//else{
+		normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
+	//}
 	//nv1a is the point
 	//nv1b is the pole
 	//nv2a and nv2b is the line with which intersection is sought
@@ -381,7 +381,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	dai = nv2a.SphericalDistance(&result, 1.0)
 	dbi = nv2b.SphericalDistance(&result, 1.0)
 	fmt.Println("T367: ", dab, dai,dbi, (dab-dai-dbi))
-	if math.Abs(dab-dai-dbi) > 1e-9 && dab > 1e-9 {
+	if math.Abs(dab-dai-dbi) > 1e-9 && dab > 1e-9 { //If distance is zero between LOI points, means whole equator
 		err = NoIntersectionError{}
 	}
 
