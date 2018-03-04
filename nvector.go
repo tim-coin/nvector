@@ -300,18 +300,18 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 		nv2a = &_t1
 		*/
 		//fmt.Println("Needs Delta", nv2a)
-		//normalA = &nv1a.Vec3
-	}//else{
-		normalA = cross(&nv1a.Vec3, &nv1b.Vec3)
-	//}
+		normalB = &nv2a.Vec3
+	}else{
+	normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
+	}
 	//nv1a is the point
 	//nv1b is the pole
 	//nv2a and nv2b is the line with which intersection is sought
 
 	var err error
 
+	normalA = cross(&nv1a.Vec3, &nv1b.Vec3)
 
-	normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
 	intersection = cross(normalA, normalB)
 	intersection2 := Vec3{0,0,0}  //negative(intersection)
 	intersection2[0] = -1*intersection[0]
