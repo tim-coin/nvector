@@ -341,7 +341,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 		//lain = in2.ToLonLat().Lat
 		result = in2
 	} //Now we have the nearest intersection point. Finally check if it is in range of POL(point of Line)
-	//fmt.Println("Dist: ",loin*180/math.Pi, ":",din1, din2)
+	fmt.Println("Dist: ",result, ":",din1, din2)
 
 
 	/* //THis is not needed as replaced by LOI check
@@ -386,7 +386,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 	}
 	*/
 
-	fmt.Println("Point Longitude is,", nv1a.ToLonLat().Lon*180/math.Pi, err)
+	fmt.Println("Int Longitude is,", result.ToLonLat().Lon*180/math.Pi, err)
 	return result, err
 }
 
