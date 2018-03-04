@@ -330,7 +330,7 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 		//nv0 := nv0ll.ToNVector()
 		//normalB = cross(&nv0.Vec3, &nv2a.Vec3) //&nv2a.Vec3
 		//Method 3 : Equator
-		normalB = &Vec3{0,0,1}
+		normalB = &Vec3{0,0,0}
 	}else{
 	normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
 	}
