@@ -427,25 +427,33 @@ func Intersection2(nv1a, nv1b, nv2a, nv2b *NVector) (NVector, error) {
 
 // Extrapolation returns the spheroidal  point where the line will intersect
 // NoIntersectionError is returned
+//1a is node point, 1b is cg, 2a/2b is the target line
 func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	//Add a delta if both points are same for Point of Line
-	delta := 1e-9
-	//fmt.Println("T384: Point-1 is, ", nv2a.Vec3, nv2b.Vec3[0],nv1a.ToLonLat().Lon*180/math.Pi, nv1a.ToLonLat().Lat*180/math.Pi)
-	if(nv2a.ToLonLat().Lon == nv2b.ToLonLat().Lon && nv2a.ToLonLat().Lon == -1*math.Pi){
+	var normalA, normalB, intersection *Vec3
+	//fmt.Println(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon, -1*math.Pi, delta)
+	if(nv2a.ToLonLat().Lon == nv2b.ToLonLat().Lon && nv2a.ToLonLat().Lat == nv2b.ToLonLat().Lat  && nv2a.ToLonLat().Lon == -1*math.Pi){
 		//Fixing singularity
+		/*
+		delta := 1e-9
 		_t , _ := NewLonLat((nv2a.ToLonLat().Lon - delta)*180/math.Pi, (nv2a.ToLonLat().Lat)*180/math.Pi)
 		_t1 := _t.ToNVector()
 		nv2a = &_t1
+		*/
 		//fmt.Println("Needs Delta", nv2a)
+		//Since it will happen on equator only(for geoBoss), choose second point as prime meridian on equator(0,0)
+		//nv0ll,_ := NewLonLat(0, 0)
+		//nv0 := nv0ll.ToNVector()
+		//normalB = cross(&nv0.Vec3, &nv2a.Vec3) //&nv2a.Vec3
+		//Method 3 : Equator
+		normalB = &Vec3{0,0,1}
+	}else{
+	normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
 	}
-	//nv1a is the point
-	//nv1b is the pole
-	//nv2a and nv2b is the line with which intersection is sought
-	var normalA, normalB, intersection *Vec3
 	var err error
 
 	normalA = cross(&nv1a.Vec3, &nv1b.Vec3)
-	normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
+	//normalB = cross(&nv2a.Vec3, &nv2b.Vec3)
 	intersection = cross(normalA, normalB)
 	intersection2 := Vec3{0,0,0}  //negative(intersection)
 	intersection2[0] = -1*intersection[0]
@@ -457,8 +465,9 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 
 	loin := in1.ToLonLat().Lon //Let's assume that 1st intersection is nearest to POI (point of interest)
 	lain := in1.ToLonLat().Lat //Let's assume that 1st intersection is nearest to POI (point of interest)
-	//fmt.Println("lonlat of int1:::",in1.ToLonLat().Lon*180/math.Pi, in1.ToLonLat().Lat*180/math.Pi)
-	//fmt.Println("lonlat of int2:::",in2.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lat*180/math.Pi)
+	fmt.Println("T468: ", normalA, normalB)
+	fmt.Println("lonlat of int1:::",in1.ToLonLat().Lon*180/math.Pi, in1.ToLonLat().Lat*180/math.Pi)
+	fmt.Println("lonlat of int2:::",in2.ToLonLat().Lon*180/math.Pi, in2.ToLonLat().Lat*180/math.Pi)
 	result := in1
 	lorange := []float64{math.Min(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon), math.Max(nv2a.ToLonLat().Lon,nv2b.ToLonLat().Lon)} //the line of interest
 	larange := []float64{math.Min(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat), math.Max(nv2a.ToLonLat().Lat,nv2b.ToLonLat().Lat)} //the line of interest
@@ -480,6 +489,7 @@ func Extrapolation(nv1a, nv1b, nv2a, nv2b *NVector) (LonLat, error) {
 	//fmt.Println("T431: ", dai, dbi)
 	if dai*dbi == 0  {
 		//result = (nv2a+nv2b)/2
+		fmt.Println("T491: Zero Extrapolation" )
 		result = NVector{Vec3{(nv2a.Vec3[0]+nv2b.Vec3[0])/2,(nv2a.Vec3[1]+nv2b.Vec3[1])/2,(nv2a.Vec3[2]+nv2b.Vec3[2])/2}}
 	}
 

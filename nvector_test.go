@@ -531,3 +531,38 @@ func oet1(la float64,lo float64,tri [][]float64) bool{
   fmt.Println("T105: ", counter)
   return (counter%2 != 0)
 }
+
+
+func TestExtrapolation6(t *testing.T) {
+	fmt.Println("--------------6-----------------------------")
+	ll1, _ := NewLonLat( 24.20254710094333,39.458341347381015)
+	ll2, _ := NewLonLat(0, 90)
+	//ll1, _ := NewLonLat(115.4010439,-32.0376666 )
+	//ll2, _ := NewLonLat(0, 90)
+
+	ll3, _ := NewLonLat(-180, 0)
+	ll4, _ := NewLonLat(180, 0)
+
+	nv1 := ll1.ToNVector()
+	nv2 := ll2.ToNVector()
+	nv3 := ll3.ToNVector()
+	nv4 := ll4.ToNVector()
+	pole := &Vec3{1, 1, 1} //Use this to find direction of cross product
+	//Assign the sign
+
+	fmt.Println("S1: ", nv3.SphericalDistance2(&nv4,1), cross(&nv3.Vec3,&nv4.Vec3), Sign(dot(pole,cross(&nv3.Vec3,&nv4.Vec3) )) ,";", cross(&nv3.Vec3,&nv4.Vec3).Magnitude(), dot(&nv3.Vec3,&nv4.Vec3))
+	//fmt.Println("S1: ", nv4.SphericalDistance2(&nv3,1), cross(&nv4.Vec3,&nv3.Vec3),dot(pole,cross(&nv4.Vec3,&nv3.Vec3) ) ,";", cross(&nv4.Vec3,&nv3.Vec3).Magnitude(), dot(&nv4.Vec3,&nv3.Vec3))
+	fmt.Println("T555: ", nv1, nv2, nv3, nv4)
+
+	p, err := Extrapolation(&nv1, &nv2, &nv3, &nv4)
+
+
+
+
+	fmt.Println("error", err)
+	fmt.Println("Extrapolation lon", p.Lon*180/math.Pi)
+	fmt.Println("Extrapolation lat", p.Lat*180/math.Pi)
+
+
+	fmt.Println("T452: ",p,  err)
+}
