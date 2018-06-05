@@ -1,4 +1,4 @@
-# Golang n-vector library
+# Golang n-vector library - Modified for convex triangle in-point check
 
 This performs approximate and exact geodesic calculations using the concept of
 *n-vectors*, as described in
